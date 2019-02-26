@@ -1,1 +1,1 @@
-# dero-sc-boundless-galaxy
+# `DERO Boundless Galaxy` - Your own place in digital galaxy
