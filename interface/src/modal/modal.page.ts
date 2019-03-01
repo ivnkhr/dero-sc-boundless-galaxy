@@ -6,8 +6,8 @@ import { ModalController } from '@ionic/angular';
   selector: 'modal-page',
   template: `
   <ion-header>
-    <ion-toolbar color="secondary">
-      <ion-title>Contract Content</ion-title>
+    <ion-toolbar>
+      <ion-title color="light">Contract Content</ion-title>
       <ion-buttons slot="end">
         <ion-button (click)="dismissModal()">Close</ion-button>
       </ion-buttons>

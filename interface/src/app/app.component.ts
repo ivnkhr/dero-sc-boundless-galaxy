@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 import { Storage } from '@ionic/storage';
-import { Platform } from '@ionic/angular';
+import { Platform, LoadingController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -33,7 +33,8 @@ export class AppComponent {
     private statusBar: StatusBar,
     public storage: Storage,
     private http: HttpClient,
-    public modalController: ModalController
+    public modalController: ModalController,
+    public loadingController: LoadingController
   ) {
     this.initializeApp();
   }
@@ -53,6 +54,26 @@ export class AppComponent {
   public variables = [''];
   public active_method = null;
   public command = {};
+
+  public loadingState = null;
+  async presentLoadingWithOptions(text) {
+    this.loadingState = await this.loadingController.create({
+      spinner: 'crescent',
+      duration: 2000,
+      message: text,
+      translucent: false,
+      // cssClass: 'custom-class custom-loading'
+    });
+    // console.log();
+    await this.loadingState.present();
+    return this.loadingState;
+  }
+
+  async onHookLoading() {
+    console.log(this.loadingState);
+    if ( this.loadingState != null ) { return await this.loadingState.dismiss(); }
+    return;
+  }
 
   public execute_command() {
     this.wallet_execution_response = null;
@@ -119,7 +140,7 @@ export class AppComponent {
     return await modal.present();
   }
 
-  public fetch_contract(sc_keys) {
+  public async fetch_contract(sc_keys) {
     console.log('Ping: Contract');
     this.active_method = null;
     const params = {'txs_hashes': [this.contract], 'sc_keys': []};
@@ -127,6 +148,10 @@ export class AppComponent {
       params.sc_keys = sc_keys;
     }
     const data = JSON.stringify(params);
+
+
+    const loading = await this.presentLoadingWithOptions('Loading Contract State');
+
     this.http.post(this.daemon + '/gettransactions', data).subscribe(
       responseAfterSuccess => {
         const subject = responseAfterSuccess;
@@ -136,12 +161,17 @@ export class AppComponent {
           alert(subject['status']);
           this.contract_response = null;
         }
+        loading.dismiss();
       },
-      responseAfterError => { alert('Error During Contract Fetching'); this.contract_response = null; }
+      responseAfterError => {
+        alert('Error During Contract Fetching');
+        this.contract_response = null;
+        loading.dismiss();
+      }
     );
   }
 
-  public ping_wallet() {
+  public async ping_wallet() {
     this.wallet_status = 1;
     console.log('Ping: Wallet');
     const httpOptions = {
@@ -151,6 +181,10 @@ export class AppComponent {
     };
     const params = {};
     const data = JSON.stringify({ 'jsonrpc' : '2.0', 'id': 0, 'method': 'getbalance', 'params': params});
+
+
+    // const loading = await this.presentLoadingWithOptions('Loading Wallet State');
+
     this.http.post(this.wallet + '/json_rpc', data, httpOptions).subscribe(
       responseAfterSuccess => {
         const subject = responseAfterSuccess;
@@ -161,12 +195,17 @@ export class AppComponent {
           alert('Error: Something went wrong');
           this.wallet_response = null;
         }
+        // loading.dismiss();
       },
-      responseAfterError => { this.wallet_status = 0; this.wallet_response = null; }
+      responseAfterError => {
+        this.wallet_status = 0;
+        this.wallet_response = null;
+        // loading.dismiss();
+      }
     );
   }
 
-  public ping_daemon() {
+  public async ping_daemon() {
     this.daemon_status = 1;
     console.log('Ping: Daemon');
     const httpOptions = {
@@ -176,12 +215,21 @@ export class AppComponent {
     };
     const params = {};
     const data = JSON.stringify({ 'jsonrpc' : '2.0', 'id': 0, 'method': 'get_info', 'params': params});
+
+
+    const loading = await this.presentLoadingWithOptions('Loading Daemon State');
+
     this.http.post(this.daemon + '/json_rpc', data, httpOptions).subscribe(
       responseAfterSuccess => {
         this.daemon_response = responseAfterSuccess;
         this.daemon_status = 3;
+        loading.dismiss();
       },
-      responseAfterError => { this.daemon_status = 0;  this.daemon_response = null; }
+      responseAfterError => {
+        this.daemon_status = 0;
+        this.daemon_response = null;
+        loading.dismiss();
+      }
     );
   }
 

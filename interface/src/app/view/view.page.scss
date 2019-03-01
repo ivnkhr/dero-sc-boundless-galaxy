@@ -1,0 +1,233 @@
+.local{
+  height: calc(100vh - 114px);
+  overflow: hidden;
+  background-color: black;
+	background-position: center center;
+	background-size: cover;
+	transition: background-image 0.8s ease;
+}
+
+canvas{
+  // background-color: black;
+  border-radius: 999px;
+}
+
+.solar-system{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin-left: -40vh;
+  margin-top: -40vh;
+  height: 80vh;
+  width: 80vh;
+  border: 0px solid white;
+  transform: perspective(100vh) rotateX(20deg) translateY(-15px);
+}
+
+@keyframes orbit { from { transform:rotate(0deg) } to { transform:rotate(360deg) } }
+
+/*
+$color-epic: yellow;
+$color-legendary: pink;
+$color-rare: blue;
+$color-common: white;
+*/
+
+.ring{
+  cursor: pointer;
+  text-align: center;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 9999;
+  border: 2px solid var(--ring-color);
+  border-radius: 999px;
+  
+  
+  
+  animation-iteration-count:infinite;
+  animation-timing-function:linear;
+  animation-name:orbit;
+  animation-duration: 1s;
+  &.hover{
+    border: 2px solid var(--ring-color-hover);
+  }
+  &.lock{
+    border: 2px solid var(--ring-color-lock);
+    box-shadow: 0px 0px 12px 2px var(--ring-color-lock);
+  }
+}
+
+.ringRarity0, .ringRarityFree{
+  --ring-color: rgba(200,200,200,0.45);
+  --ring-color-hover: rgba(200,200,200,0.75);
+  --ring-color-lock: rgba(250,250,250,0.9);
+  --ring-font-size: 12px!important;
+}
+.ringRarity1{
+  --ring-color: rgba(20,70,255,0.45);
+  --ring-color-hover: rgba(20,70,255,0.75);
+  --ring-color-lock: rgba(20,70,255,0.9);
+  --ring-font-size: 13px!important;
+}
+.ringRarity2{
+  --ring-color: rgba(188,0,180,0.45);
+  --ring-color-hover: rgba(188,0,180,0.75);
+  --ring-color-lock: rgba(188,0,180,0.95);
+  --ring-font-size: 14px!important;
+}
+.ringRarity3{
+  --ring-color: rgba(250,255,20,0.45);
+  --ring-color-hover: rgba(250,255,20,0.75);
+  --ring-color-lock: rgba(250,255,20,1);
+  --ring-font-size: 15px!important;
+}
+
+.cardRarity0{
+  border: 2px solid rgba(250,250,250,1)!important;
+  
+}
+.cardRarity1{
+  border: 2px solid rgba(20,70,255,1)!important;
+  b{ color: blue; }
+}
+.cardRarity2{
+  border: 2px solid rgba(188,0,180,1)!important;
+  box-shadow: 0px 0px 14px 2px purple;
+  b{ color: #ef00ff; }
+}
+@keyframes radiate { from { box-shadow: 0px 0px 18px 4px yellow; } to { box-shadow: 0px 0px 14px 0px yellow; } }
+.cardRarity3{
+  border: 2px solid rgba(250,255,20,1)!important;
+  //box-shadow: 0px 0px 14px 2px yellow;
+  animation-iteration-count:infinite;
+  animation-timing-function:ease;
+  animation-name:radiate;
+  animation-duration: 2s;
+  animation-direction: alternate;
+  b{ color: yellow; }
+}
+
+.planet-list, .planet-card{
+  .heared-card{
+    width: 100%;
+  }
+  .desc{
+    text-align: justify;
+    background-color: rgba(0,0,0,0.25);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 6px;
+  }
+  .close{
+    cursor: pointer;
+    color: #ccc;
+    &:hover{
+      color: white;
+    }
+  }
+  background-color: rgba(20,20,20,0.8);
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  border: 2px solid #333;
+  border-radius: 12px;
+  padding: 20px;
+  opacity: 1.0;
+  //transition: box-shadow 0.4s ease;
+  &.cardlock-1{
+    opacity: 0.5;
+  }
+}
+
+.planet-list{
+  div{
+    --ring-font-size: 12px;
+    font-size: var(--ring-font-size);
+    cursor: pointer;
+    padding: 10px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    color: var(--ring-color);
+    &.hover{
+      border-radius: 6px;
+      background-color: rgba(250,250,250,0.15);
+      color: var(--ring-color-hover);
+    }
+    &.lock{
+      font-weight: bold;
+      text-shadow: 0px 0px 0px black;
+      //font-weight: bold;
+      color: var(--ring-color-lock);
+    }
+  }
+}
+
+.planet-card{
+  text-align: center;
+  width: 420px;
+  top: auto;
+  left: auto;
+  bottom: 15px;
+  right: 15px;
+  .cis{
+    width: 300px;
+    height: 300px;
+  }
+}
+
+.row{
+  //position: relative;
+  //width: 10px;
+  //height: 10px;
+  //top: -20px;
+  border: 0px solid green;
+}
+
+.planet{
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: inline-block;
+  //background-color: white;
+  //border: 1px solid black;
+  border-radius: 999px;
+  top: -30px;
+  .cis{
+    width: 60px;
+    height: 60px;
+ }
+}
+
+@keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+
+@for $i from 0 through 7 {
+  @keyframes orbit#{$i} { from { transform:rotate(277 * ($i+1)*33deg) } to { transform:rotate(360deg + 277*($i+1)*33deg) } }
+  .ring#{$i} {
+    width: 80vh - $i*10vh;
+    height: 80vh - $i*10vh;
+    margin-left: -(80vh - $i*10vh)/2;
+    margin-top: -(80vh - $i*10vh)/2;
+    transform: rotateX(0);
+    
+    animation-iteration-count:1,infinite;
+    animation-timing-function:ease,linear;
+    animation-name:fade,orbit#{$i};
+    animation-duration: (7-$i)*1s, 100s + random(200) + (8-$i)*20s;
+    animation-direction: backwards;
+  }
+}
+
+.sun{
+  border-radius: 999px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -3vh;
+  margin-top: -3vh;
+  height: 6vh;
+  width: 6vh;
+  box-shadow: 0px 0px 16px 0px white;
+  background-color: rgba(250,250,20,0.9);
+  border: 1px solid yellow;
+}

@@ -1,0 +1,94 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button color="light" defaultHref="/app/galaxy"></ion-back-button>
+    </ion-buttons>
+    <ion-title color="light">Sector [{{x}}:{{y}}]</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="solid" (click)="updateView()">
+        <ion-icon name="share-alt"></ion-icon>
+        Resresh Sector
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="dark">
+  
+
+  
+  <div class="local">
+    
+    
+    
+    <div class="solar-system">
+      <div class="sun"></div>
+      <div *ngFor="let planet of items" class="ring ring{{planet}} ringRarity{{(dataArray[planet])?dataArray[planet].vRarityRate:0}}" [ngClass]="{'hover': hover==planet, 'lock': lock==planet}" (mouseenter) ="mouseEnter(planet)"  (mouseleave) ="mouseLeave(planet)" (click)="mouseClick(planet)">
+        <div class="row">
+          <div class="planet">
+            <canvas class="cis" id="c{{planet}}" width="60" height="60"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="planet-list">
+      <div *ngFor="let planet of items?.reverse(); index as i;" class="ringRarity{{(dataArray[planet])?dataArray[planet].vRarityRate:0}}" [ngClass]="{'hover': hover==planet, 'lock': lock==planet}" (mouseenter) ="mouseEnter(planet)"  (mouseleave) ="mouseLeave(planet)" (click)="mouseClick(planet)">
+        {{i+1}}. xxxxxxx
+      </div>
+    </div>
+    
+    <div class="planet-card cardRarity{{(planet_focus)?planet_focus.vRarityRate:-1}} cardlock{{lock}}">
+      
+      <table class="heared-card">
+        <tr>
+          <td align="left">
+            <ion-icon class="close" name="close-circle" (click)="this.lock=-1" [hidden]="this.lock==-1" ></ion-icon>
+          </td>
+          <td align="right">
+            <b *ngIf="!planet_focus">FREE SPACE <span *ngIf="lock!==-1">[{{x}}:{{y}}:{{7-lock}}]</span></b>
+            <b *ngIf="planet_focus">
+              <span *ngIf="planet_focus.vRarityRate==0">Common</span>
+              <span *ngIf="planet_focus.vRarityRate==1">Rare</span>
+              <span *ngIf="planet_focus.vRarityRate==2">Legendary</span>
+              <span *ngIf="planet_focus.vRarityRate==3">EPIC</span>
+            </b>  
+          </td>
+        </tr>
+      </table>
+      
+      <canvas class="cis" id="planetFocus" [hidden]="!planet_focus"></canvas>
+      
+      <!--
+      <br/>
+      {{lock}}
+      {{hover}}
+      {{planet_focus}}
+      <br/>
+      -->
+      <br/>
+      
+      <div [hidden]="!planet_focus">
+        <br/>
+        <b>Theta VI</b>
+        <br/>
+        <br/>
+        <div class="desc">
+        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s
+        </div>
+      </div>
+      
+      <ion-button fill="solid" size="large" color="warning" [hidden]="!planet_focus" expand="block" (click)="rebuy(lock)">
+        <ion-icon name="pricetag"></ion-icon>
+        On Sell (1 DERO)
+      </ion-button>
+      
+      <ion-button fill="solid" size="large" color="success" [hidden]="planet_focus" expand="block" (click)="colonize(lock)">
+        <ion-icon name="rocket"></ion-icon>
+        Colonize (1 DERO)
+      </ion-button>
+      
+    </div>
+    
+  </div>
+</ion-content>

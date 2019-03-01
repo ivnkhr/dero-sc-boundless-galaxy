@@ -1,1 +1,67 @@
+.galaxy{
+  
+  background-color: black;
+	background-position: center center;
+	background-size: cover;
+	transition: background-image 0.4s ease;
+  
+  ion-col{
+    height: calc(11.0vh - 12.966px);
+    border-top: 0px solid lime;
+    border-left: 0px solid lime;
+    text-align: center;
+    font-size: 11px;
+    color: #333;
+    border: 1px solid rgba(10,10,10,0.2);
+    //padding-top: 15px;
+    
+    &:hover{
+      cursor: pointer;
+      background-color: rgba(10,210,10,0.7);
+      color: white;
+      outline: 1px solid lime;
+      font-size: 13px;
+    }
+    div{
+      padding-top: 15px;
+    }
+    i{
+      display: hidden;
+    }
+    div.explored{
+      color: white;
+      outline: 1px solid green;
+      font-size: 13px!important;
+      background-color: rgba(20,250,20,0.1);
+      height: 100%;
+      u{
+        font-size: 11px;
+        display: block;
+        color: #ccc;
+        text-decoration: none;
+      }
+    }
+    .scanned{
+      color: gray;
+      outline: 1px solid gray;
+      background-color: rgba(40,40,40,0.2);
+    }
+  }
+  
+  span{
+    display: none;
+  }
+  
+  .sector{
+    cursor: pointer;
+    height: 100%;
+  }
+  
+}
 
+ion-input{
+  
+  border-left: 2px solid #b50089;
+  text-align: center;
+  
+}

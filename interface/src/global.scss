@@ -9,3 +9,59 @@
 @import '~@ionic/angular/css/text-alignment.css';
 @import '~@ionic/angular/css/text-transformation.css';
 @import '~@ionic/angular/css/flex-utils.css';
+
+:root{
+
+  ion-toolbar{
+    
+    --border-color: #b50089;
+    --border-width: 0px 0px 2px 0px;
+    --background: #111;
+    
+  }
+
+  ion-tab-bar{
+    
+    --background: #111;
+    --border: 2px solid #b50089;
+    
+  }
+
+  ion-tab-button{
+    
+    --background: transparent;
+    --background-focused: black;
+    --ripple-color: #fff;
+    --color: #ff00ff;
+    --color-selected: yellow;
+    
+  }
+
+  ion-content{
+    
+    --background: #000 url('./assets/bakcground.jpg') no-repeat center center / cover;
+    
+  }
+
+  ion-button, .button{
+    
+    --background: #000 url('./assets/bakcground.jpg') no-repeat top center / cover;
+    --background-activated: #000 url('./assets/bakcground.jpg') no-repeat center center / cover;
+    --background-focused: #000 url('./assets/bakcground.jpg') no-repeat bottom center / cover;
+    
+    --color: white;
+    --color-activated: yellow;
+    --color-focused: blue;
+    
+    --box-shadow: 0px 2px 2px 0px black; 
+    
+  }
+  
+  .sc-ion-card-md-h{
+  
+    background: rgba(255,255,255,0.8);
+    border: 2px solid white;
+    
+  }
+  
+}
