@@ -75,12 +75,38 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
   public async fetchPlanets() {
 
     // Fill in dataArray
+    // Build nessesary sc_keys
+    const keys = [];
+    let planet_pos = '';
+    for (i = 0; i < 7; i++) {
+      planet_pos = '[' + this.x + ':' + this.y + ':' + i + ']';
+      keys.push(planet_pos + '/RARECloudiness');
+      keys.push(planet_pos + '/RARECold');
+      keys.push(planet_pos + '/RAREOcean');
+      keys.push(planet_pos + '/RARETemperate');
+      keys.push(planet_pos + '/RAREWarm');
+      keys.push(planet_pos + '/RAREHot');
+      keys.push(planet_pos + '/RARESpeckle');
+      keys.push(planet_pos + '/RAREClouds');
+      keys.push(planet_pos + '/RARELightColor');
+    }
 
-    const loading = await this.rootApp.presentLoadingWithOptions('Loading Sector State');
+
+
+    const res = await this.rootApp.fetch_contract(keys);
+    if ( res != null ) {
+      // Blockchain got an actual data
+      // Parse keys per planet
+      try {
+        const contract_keys = res.txs[0].sc_keys;
+      } catch (err) {
+        // Sector is empty
+      }
+    }
 
     let setoff = {};
     setoff = {};
-    setoff.vPlanetMass = 60;
+    setoff.vPlanetMass = 60; // constant
 
     setoff.RARECloudiness = 1;
     setoff.RARECold = 1;
@@ -91,7 +117,7 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     setoff.RARESpeckle = 1;
     setoff.RAREClouds = 1;
     setoff.RARELightColor = 1;
-    setoff.RAREHaze = 1;
+    // setoff.RAREHaze = 1;
 
     const rarity_rate =
     setoff.RARECloudiness +
@@ -102,9 +128,10 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     setoff.RAREHot +
     setoff.RARESpeckle +
     setoff.RAREClouds +
-    setoff.RARELightColor +
-    setoff.RAREHaze;
+    setoff.RARELightColor; // +
+    // setoff.RAREHaze;
 
+    // Calculated
     setoff.vRarityRate = 0;
     if ( rarity_rate >= 3 ) { setoff.vRarityRate = 1; }
     if ( rarity_rate >= 6 ) { setoff.vRarityRate = 2; }
@@ -139,6 +166,18 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     setoff.vSpeckle_g = 60; // 0-100
     setoff.vSpeckle_b = 60; // 0-100
 
+    setoff.vClouds_r = 60; // 0-100
+    setoff.vClouds_g = 60; // 0-100
+    setoff.vClouds_b = 60; // 0-100
+
+    setoff.vLightColor_r = 60; // 0-100
+    setoff.vLightColor_g = 60; // 0-100
+    setoff.vLightColor_b = 60; // 0-100
+
+    setoff.vHaze_r = 60; // 0-100
+    setoff.vHaze_g = 60; // 0-100
+    setoff.vHaze_b = 60; // 0-100
+
     setoff.fixtures01 = 10; // 0-20
     setoff.fixtures02 = 30; // 0-100
     setoff.fixtures03 = 50; // 0-100
@@ -164,7 +203,7 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     this.dataArray[4] = JSON.parse(JSON.stringify(setoff));
 
 
-    loading.dismiss();
+    // loading.dismiss();
 
     // Fill in dataArray
 

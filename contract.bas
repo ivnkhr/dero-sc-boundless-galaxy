@@ -59,7 +59,7 @@ Function Initialize() Uint64
 	
 	10 STORE("admin", SIGNER())   // store in DB  ["owner"] = address
 	
-	10 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 8)
+	20 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 5)
 	
 	999 RETURN Info("Contract Successfully Deployed")
 End Function 
@@ -113,27 +113,106 @@ Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64) 
 	// Initialize user stack if its his 1st platform
 	10 DIM user as String
 	11 DIM stack_index as Uint64
-	11 LET user = SIGNER()
-	11 LET stack_index = 0
+	12 LET user = SIGNER()
+	13 LET stack_index = 0
 	
-	10 IF EXISTS(user+"_index") == 1 THEN GOTO 20
-	11 STORE(user+"_index", stack_index)
+	20 IF EXISTS(user+"_index") == 1 THEN GOTO 30
+	21 STORE(user+"_index", stack_index)
 	
-	10 stack_index = LOAD(user+"_index")
+	30 LET stack_index = LOAD(user+"_index")
+	
+	/*
+    setoff.RARECloudiness = 1; // 0-100
+    setoff.RARECold = 1; // 0-100
+    setoff.RAREOcean = 1; // 0-100
+    setoff.RARETemperate = 1; // 0-100
+    setoff.RAREWarm = 1; // 0-100
+    setoff.RAREHot = 1; // 0-100
+    setoff.RARESpeckle = 1; // 0-100
+    setoff.RAREClouds = 1; // 0-100
+    setoff.RARELightColor = 1; // 0-100
+
+    setoff.vWaterLevel = 0; // 0-40
+    setoff.vRivers = 0; // 0-100
+    setoff.vTemperature = 0; // 0-40
+    setoff.vCloudiness = 0; // 0-20
+
+    setoff.vCold_r = 44; // 0-100
+    setoff.vCold_g = 13; // 0-100
+    setoff.vCold_b = 14; // 0-100
+
+    setoff.vOcean_r = 17; // 0-100
+    setoff.vOcean_g = 18; // 0-100
+    setoff.vOcean_b = 19; // 0-100
+
+    setoff.vTemperate_r = 60; // 0-100
+    setoff.vTemperate_g = 70; // 0-100
+    setoff.vTemperate_b = 10; // 0-100
+
+    setoff.vWarm_r = 60; // 0-100
+    setoff.vWarm_g = 60; // 0-100
+    setoff.vWarm_b = 60; // 0-100
+
+    setoff.vHot_r = 60; // 0-100
+    setoff.vHot_g = 60; // 0-100
+    setoff.vHot_b = 60; // 0-100
+
+    setoff.vSpeckle_r = 60; // 0-100
+    setoff.vSpeckle_g = 60; // 0-100
+    setoff.vSpeckle_b = 60; // 0-100
+
+    setoff.vClouds_r = 60; // 0-100
+    setoff.vClouds_g = 60; // 0-100
+    setoff.vClouds_b = 60; // 0-100
+
+    setoff.vLightColor_r = 60; // 0-100
+    setoff.vLightColor_g = 60; // 0-100
+    setoff.vLightColor_b = 60; // 0-100
+
+    setoff.vHaze_r = 60; // 0-100
+    setoff.vHaze_g = 60; // 0-100
+    setoff.vHaze_b = 60; // 0-100
+
+    setoff.fixtures01 = 10; // 0-20
+    setoff.fixtures02 = 30; // 0-100
+    setoff.fixtures03 = 50; // 0-100
+    setoff.fixtures04 = 0; // 0-10
+    setoff.fixtures05 = 0; // 0-7
+    setoff.fixtures06 = 110; // 0-220
+    setoff.fixtures07 = 40; // 0-80
+    setoff.fixtures08 = 5; // 0-9
+    setoff.fixtures09 = 7; // 0-20
+
+    setoff.vAngle = 0; // 0-60
+    setoff.vRotspeed = 0; // 0-20
+	*/
 	
 	// All checkup passed now we can generate planet
-	100 STORE("["+position_x+":"+position_y+":"+position_z+"] - Owner", SIGNER())
+	100 STORE("["+position_x+":"+position_y+":"+position_z+"]/Owner", 			SIGNER())
 	
-	101 STORE("["+position_x+":"+position_y+":"+position_z+"] - Weight", SIGNER())
-	102 STORE("["+position_x+":"+position_y+":"+position_z+"] - Radius", SIGNER())
-	103 STORE("["+position_x+":"+position_y+":"+position_z+"] - Speed", SIGNER())
-	104 STORE("["+position_x+":"+position_y+":"+position_z+"] - Direction", SIGNER())
+	101 STORE("["+position_x+":"+position_y+":"+position_z+"]/RARECloudiness",  0 + RANDOM(100 + 1) )
+	102 STORE("["+position_x+":"+position_y+":"+position_z+"]/RARECold", 		0 + RANDOM(100 + 1) )
+	103 STORE("["+position_x+":"+position_y+":"+position_z+"]/RAREOcean", 		0 + RANDOM(100 + 1) )
+	104 STORE("["+position_x+":"+position_y+":"+position_z+"]/RARETemperate", 	0 + RANDOM(100 + 1) )
+	105 STORE("["+position_x+":"+position_y+":"+position_z+"]/RAREWarm", 		0 + RANDOM(100 + 1) )
+	106 STORE("["+position_x+":"+position_y+":"+position_z+"]/RAREHot", 		0 + RANDOM(100 + 1) )
+	107 STORE("["+position_x+":"+position_y+":"+position_z+"]/RARESpeckle", 	0 + RANDOM(100 + 1) )
+	108 STORE("["+position_x+":"+position_y+":"+position_z+"]/RAREClouds", 		0 + RANDOM(100 + 1) )
+	109 STORE("["+position_x+":"+position_y+":"+position_z+"]/RARELightColor", 	0 + RANDOM(100 + 1) )
 	
-	STORE(user+"_index_"+stack_index, "["+position_x+":"+position_y+":"+position_z+"])
-	11 STORE(user+"_index", stack_index+1)
+	110 STORE("["+position_x+":"+position_y+":"+position_z+"]/Speed", SIGNER())
+	111 STORE("["+position_x+":"+position_y+":"+position_z+"]/Direction", SIGNER())
 	
-	105 RETURN 1
+	200 STORE(user+"_index_"+stack_index, "["+position_x+":"+position_y+":"+position_z+"]")
+	201 STORE(user+"_index", stack_index + 1)
 	
+	300 RETURN 0
+	
+End Function
+
+/*
+Function PlanetMerge(planet1_x Uint64, planet1_y Uint64, planet1_z Uint64, planet2_x Uint64, planet2_y Uint64, planet2_z Uint64)
+
 End Function
 
 
@@ -150,3 +229,12 @@ Function PlanetSetNote(position_x Uint64, position_y Uint64, position_z Uint64, 
 End Function
 
 
+Function PlanetSellOut()
+
+End Function
+
+
+Function PlanetBuyIn()
+
+End Function
+*/

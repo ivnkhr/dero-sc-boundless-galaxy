@@ -149,26 +149,29 @@ export class AppComponent {
     }
     const data = JSON.stringify(params);
 
+    const loading = await this.presentLoadingWithOptions('Loading Blockchain State');
 
-    const loading = await this.presentLoadingWithOptions('Loading Contract State');
-
-    this.http.post(this.daemon + '/gettransactions', data).subscribe(
-      responseAfterSuccess => {
-        const subject = responseAfterSuccess;
-        if (subject['status'] === 'OK') {
-          this.contract_response = subject;
-        } else {
-          alert(subject['status']);
-          this.contract_response = null;
-        }
-        loading.dismiss();
-      },
-      responseAfterError => {
-        alert('Error During Contract Fetching');
+    console.log('init');
+    await this.http.post(this.daemon + '/gettransactions', data)
+    .toPromise()
+    .then(responseAfterSuccess => {
+      console.log('async');
+      const subject = responseAfterSuccess;
+      if (subject['status'] === 'OK') {
+        this.contract_response = subject;
+      } else {
+        alert(subject['status']);
         this.contract_response = null;
-        loading.dismiss();
       }
-    );
+    })
+    .catch(responseAfterError => {
+      alert('Error During Contract Fetching');
+      this.contract_response = null;
+    });
+
+    loading.dismiss();
+    console.log('await');
+    return this.contract_response;
   }
 
   public async ping_wallet() {

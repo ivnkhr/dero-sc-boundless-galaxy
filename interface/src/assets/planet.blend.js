@@ -231,12 +231,12 @@ function initPlanet(ctx,wh,setoff){
   	RARESpeckle = setoff.RARESpeckle;
   	RAREClouds = setoff.RAREClouds;
   	RARELightColor = setoff.RARELightColor;
-  	RAREHaze = setoff.RAREHaze;
+  	//RAREHaze = setoff.RAREHaze;
   	//RARERadiation = 0;
   	
   	
   	//RANDOMS
-    
+    /*
   	chance_scale = 1;
   	RARECloudiness = Math.round(Math.random()/chance_scale);
   	RARECold = Math.round(Math.random()/chance_scale);
@@ -249,6 +249,7 @@ function initPlanet(ctx,wh,setoff){
   	RARELightColor = Math.round(Math.random()/chance_scale);
   	RAREHaze = Math.round(Math.random()/chance_scale);
   	RARERadiation = Math.round(Math.random()/chance_scale);
+    */
     
   	/*
   	RARECloudiness = 1;
@@ -282,7 +283,7 @@ function initPlanet(ctx,wh,setoff){
   	
   	//console.log('common');
   	
-  	if(sum>=7){
+  	if(sum>=9){
   		//console.log('!!!EPIC');
   		RAREHaze = 1;
   	}
@@ -378,9 +379,9 @@ function initPlanet(ctx,wh,setoff){
   		vSpeckle[2] *= 2.5;
   	}
   	
-  	r = 10+Math.random()*25;
-  	g = 10+Math.random()*25;
-  	b = 10+Math.random()*25;
+  	r = 10+setoff.vClouds_r/4;
+  	g = 10+setoff.vClouds_g/4;
+  	b = 10+setoff.vClouds_b/4;
     r = 0; g = 0; b = 0;
   	vClouds = [r/100, g/100, b/100]; // haze_r = 25 haze_g = 25 haze_b = 25
   	
@@ -390,9 +391,9 @@ function initPlanet(ctx,wh,setoff){
   		vClouds[2] *= 2.5;
   	}
   	
-  	r = 30+Math.random()*25;
-  	g = 30+Math.random()*25;
-  	b = 30+Math.random()*25;
+  	r = 30+0+setoff.vLightColor_r/4;
+  	g = 30+0+setoff.vLightColor_g/4;
+  	b = 30+0+setoff.vLightColor_b/4;
     r = 0; g = 0; b = 0;
   	vLightColor = [r/100, g/100, b/100]; // haze_r = 25 haze_g = 25 haze_b = 25
   	
@@ -402,9 +403,9 @@ function initPlanet(ctx,wh,setoff){
   		vLightColor[2] *= 2.5;
   	}
   	
-  	r = 0+Math.random()*15;
-  	g = 0+Math.random()*15;
-  	b = 0+Math.random()*15;
+  	r = 0+0+setoff.vHaze_r/5;
+  	g = 0+0+setoff.vHaze_g/5;
+  	b = 0+0+setoff.vHaze_b/5;
     r = 0; g = 0; b = 0;
   	vHaze = [r/100, g/100, b/100]; // haze_r = 25 haze_g = 25 haze_b = 25
   	
