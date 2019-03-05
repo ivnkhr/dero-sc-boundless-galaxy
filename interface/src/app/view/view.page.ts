@@ -41,8 +41,6 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
 
   async ngAfterViewInit() {
 
-    // updateView();
-    console.log('coordinates', this.x, this.y);
     this.updateView();
 
   }
@@ -52,161 +50,35 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     console.log('View Init');
     // this.drawPlanets();
     await this.route.paramMap.subscribe(params => {
-      // console.log(params.params.x, params.params.y);
+
       this.x = params.params.x;
       this.y = params.params.y;
 
       drawRandomUni(document.querySelector('.local'), this.x + ':' + this.y);
-      // this.fetchPlanets();
 
-      // this.drawPlanets();
     });
 
   }
 
   ngOnDestroy() {
-    console.log('unload planets');
+
     this.glContexts.forEach((item) => {
-      // document.removeChild(item);
-      // item.getExtension('WEBGL_lose_context').loseContext();
+
     });
   }
+
 
   public async fetchPlanets() {
 
     // Fill in dataArray
     // Build nessesary sc_keys
     const keys = [];
-    let planet_pos = '';
     for (i = 0; i < 7; i++) {
-      planet_pos = '[' + this.x + ':' + this.y + ':' + i + ']';
-      keys.push(planet_pos + '/RARECloudiness');
-      keys.push(planet_pos + '/RARECold');
-      keys.push(planet_pos + '/RAREOcean');
-      keys.push(planet_pos + '/RARETemperate');
-      keys.push(planet_pos + '/RAREWarm');
-      keys.push(planet_pos + '/RAREHot');
-      keys.push(planet_pos + '/RARESpeckle');
-      keys.push(planet_pos + '/RAREClouds');
-      keys.push(planet_pos + '/RARELightColor');
+      this.dataArray[i] = await this.rootApp.getPlanetFromBlockchainXYZ(this.x, this.y, i);
+      console.log(this.dataArray[i]);
     }
-
-
-
-    const res = await this.rootApp.fetch_contract(keys);
-    if ( res != null ) {
-      // Blockchain got an actual data
-      // Parse keys per planet
-      try {
-        const contract_keys = res.txs[0].sc_keys;
-      } catch (err) {
-        // Sector is empty
-      }
-    }
-
-    let setoff = {};
-    setoff = {};
-    setoff.vPlanetMass = 60; // constant
-
-    setoff.RARECloudiness = 1;
-    setoff.RARECold = 1;
-    setoff.RAREOcean = 1;
-    setoff.RARETemperate = 1;
-    setoff.RAREWarm = 1;
-    setoff.RAREHot = 1;
-    setoff.RARESpeckle = 1;
-    setoff.RAREClouds = 1;
-    setoff.RARELightColor = 1;
-    // setoff.RAREHaze = 1;
-
-    const rarity_rate =
-    setoff.RARECloudiness +
-    setoff.RARECold +
-    setoff.RAREOcean +
-    setoff.RARETemperate +
-    setoff.RAREWarm +
-    setoff.RAREHot +
-    setoff.RARESpeckle +
-    setoff.RAREClouds +
-    setoff.RARELightColor; // +
-    // setoff.RAREHaze;
-
-    // Calculated
-    setoff.vRarityRate = 0;
-    if ( rarity_rate >= 3 ) { setoff.vRarityRate = 1; }
-    if ( rarity_rate >= 6 ) { setoff.vRarityRate = 2; }
-    if ( rarity_rate >= 9 ) { setoff.vRarityRate = 3; }
-
-    setoff.vWaterLevel = 0; // 0-40
-    setoff.vRivers = 0; // 0-100
-    setoff.vTemperature = 0; // 0-40
-    setoff.vCloudiness = 0; // 0-20
-
-    setoff.vCold_r = 44; // 0-100
-    setoff.vCold_g = 13; // 0-100
-    setoff.vCold_b = 14; // 0-100
-
-    setoff.vOcean_r = 17; // 0-100
-    setoff.vOcean_g = 18; // 0-100
-    setoff.vOcean_b = 19; // 0-100
-
-    setoff.vTemperate_r = 60; // 0-100
-    setoff.vTemperate_g = 70; // 0-100
-    setoff.vTemperate_b = 10; // 0-100
-
-    setoff.vWarm_r = 60; // 0-100
-    setoff.vWarm_g = 60; // 0-100
-    setoff.vWarm_b = 60; // 0-100
-
-    setoff.vHot_r = 60; // 0-100
-    setoff.vHot_g = 60; // 0-100
-    setoff.vHot_b = 60; // 0-100
-
-    setoff.vSpeckle_r = 60; // 0-100
-    setoff.vSpeckle_g = 60; // 0-100
-    setoff.vSpeckle_b = 60; // 0-100
-
-    setoff.vClouds_r = 60; // 0-100
-    setoff.vClouds_g = 60; // 0-100
-    setoff.vClouds_b = 60; // 0-100
-
-    setoff.vLightColor_r = 60; // 0-100
-    setoff.vLightColor_g = 60; // 0-100
-    setoff.vLightColor_b = 60; // 0-100
-
-    setoff.vHaze_r = 60; // 0-100
-    setoff.vHaze_g = 60; // 0-100
-    setoff.vHaze_b = 60; // 0-100
-
-    setoff.fixtures01 = 10; // 0-20
-    setoff.fixtures02 = 30; // 0-100
-    setoff.fixtures03 = 50; // 0-100
-    setoff.fixtures04 = 0; // 0-10
-    setoff.fixtures05 = 0; // 0-7
-    setoff.fixtures06 = 110; // 0-220
-    setoff.fixtures07 = 40; // 0-80
-    setoff.fixtures08 = 5; // 0-9
-    setoff.fixtures09 = 7; // 0-20
-
-    setoff.vAngle = 0; // 0-60
-    setoff.vRotspeed = 0; // 0-20
-
-    this.dataArray[1] = JSON.parse(JSON.stringify(setoff));
-
-    setoff.vRarityRate = 0;
-    this.dataArray[2] = JSON.parse(JSON.stringify(setoff));
-
-    setoff.vRarityRate = 1;
-    this.dataArray[3] = JSON.parse(JSON.stringify(setoff));
-
-    setoff.vRarityRate = 2;
-    this.dataArray[4] = JSON.parse(JSON.stringify(setoff));
-
-
-    // loading.dismiss();
 
     // Fill in dataArray
-
     let i = 0;
     this.dataArray.forEach((item) => {
       // console.log(item);
@@ -214,8 +86,6 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
         i++;
       }
     });
-
-    console.log(i);
 
     if (i >= 0) {
       this.storage.get(this.x + ':' + this.y).then(async (val) => {
@@ -239,18 +109,8 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
       });
     }
 
-
-
-/*
-    setoff.RARECloudiness = 0;
-    setoff.RARECold = 0;
-    setoff.RAREOcean = 0;
-
-    this.dataArray[6] = setoff;
-    */
-
     this.data_ready = true;
-
+    console.log('fetchPlanets');
     return true;
 
   }
@@ -259,7 +119,7 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     // setTimeout(() => {
     let i = 0;
     this.dataArray.forEach((item) => {
-      // console.log(item);
+      console.log(item);
       if (item !== undefined && item !== null) {
         console.log(i, 'entered', item);
         this.glContexts.push(initPlanet('c' + i, 60, item));
@@ -267,7 +127,18 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
       }
       i++;
     });
+    console.log('drawPlanets');
     // }, 1000);
+  }
+
+  public colonize(slot) {
+    console.log(6 - slot);
+    this.rootApp.execute_command('PlanetAcquire', {
+      position_x: this.rootApp.onChain_position(this.x),
+      position_y: this.rootApp.onChain_position(this.y),
+      position_z: (6 - slot),
+      value: 0
+    });
   }
 
   focusCard(id) {
@@ -275,15 +146,16 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     // Pick id from data Array
     const item = this.dataArray[id];
     if (item !== undefined && item !== null) {
-      this.glContexts.push(initPlanet('planetFocus', 300, this.dataArray[id]));
-      console.log('Render Planet');
-      this.planet_focus = this.dataArray[id];
+      this.planet_focus = item;
+      this.glContexts.push(initPlanet('planetFocus', 300, item));
+      console.log('Render Planet', item);
     }
   }
 
   mouseEnter(div: string) {
     console.log('mouse enter :' + div);
-    this.hover = div;
+    this.hover = parseInt( div, 10 );
+    // this.rootApp.soundList['beep'].play();
     if (this.lock === -1) {
       this.focusCard(div);
     }
@@ -305,7 +177,8 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.planet_focus = null;
       this.focusCard(div);
-      this.lock = div;
+      // this.rootApp.soundList['deepbeep'].play();
+      this.lock = parseInt( div, 10 );
     }
     this.hover = -1;
   }

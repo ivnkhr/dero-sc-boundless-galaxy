@@ -17,6 +17,15 @@ const routes: Routes = [
         ]
       },
       {
+        path: 'tabposessions',
+        children: [
+          {
+            path: '',
+            loadChildren: '../tabposessions/tabposessions.module#TabposessionsPageModule'
+          }
+        ]
+      },
+      {
         path: 'galaxy',
         children: [
           {

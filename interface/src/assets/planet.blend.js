@@ -286,13 +286,17 @@ function initPlanet(ctx,wh,setoff){
   	if(sum>=9){
   		//console.log('!!!EPIC');
   		RAREHaze = 1;
-  	}
+  	}else{
+      RAREHaze = 0;
+    }
   		
   	if(sum>=5)
   		//console.log('!!legendary');
   		
   	if(sum>=3)
   		//console.log('!rare');
+
+    console.log('inset', setoff);
 
   	range = setoff.vWaterLevel; // -2;2 (0-4)
   	vWaterLevel = (range-20)/10;
@@ -310,9 +314,9 @@ function initPlanet(ctx,wh,setoff){
   		vCloudiness = -1;
   	}
   	
-  	r = 10+setoff.vCold_r/4 || 10+Math.random()*25;
-  	g = 10+setoff.vCold_g/4 || 10+Math.random()*25;
-  	b = 10+setoff.vCold_b/4 || 10+Math.random()*25;
+  	r = 0+setoff.vCold_r/5 || 10+Math.random()*25;
+  	g = 0+setoff.vCold_g/5 || 10+Math.random()*25;
+  	b = 0+setoff.vCold_b/5 || 10+Math.random()*25;
   	vCold = [r/100, g/100, b/100]; // haze_r = 25 haze_g = 25 haze_b = 25
   	
   	if ( RARECold >= 1 ){
@@ -321,9 +325,9 @@ function initPlanet(ctx,wh,setoff){
   		vCold[2] *= 2.5;
   	}
   	
-  	r = 10+setoff.vOcean_r/4 || 10+Math.random()*25;
-  	g = 10+setoff.vOcean_g/4 || 10+Math.random()*25;
-  	b = 10+setoff.vOcean_b/4 || 10+Math.random()*25;
+  	r = 0+setoff.vOcean_r/5 || 10+Math.random()*25;
+  	g = 0+setoff.vOcean_g/5 || 10+Math.random()*25;
+  	b = 0+setoff.vOcean_b/5 || 10+Math.random()*25;
   	vOcean = [r/100, g/100, b/100]; // haze_r = 25 haze_g = 25 haze_b = 25
   	
   	if ( RAREOcean >= 1 ){
@@ -332,9 +336,9 @@ function initPlanet(ctx,wh,setoff){
   		vOcean[2] *= 2.5;
   	}
   	
-  	r = 10+setoff.vTemperate_r/4 || 10+Math.random()*25;
-  	g = 10+setoff.vTemperate_g/4 || 10+Math.random()*25;
-  	b = 10+setoff.vTemperate_b/4 || 10+Math.random()*25;
+  	r = 0+setoff.vTemperate_r/5 || 10+Math.random()*25;
+  	g = 0+setoff.vTemperate_g/5 || 10+Math.random()*25;
+  	b = 0+setoff.vTemperate_b/5 || 10+Math.random()*25;
   	vTemperate = [r/100, g/100, b/100]; // haze_r = 25 haze_g = 25 haze_b = 25
   	
   	if ( RARETemperate >= 1 ){
@@ -343,9 +347,9 @@ function initPlanet(ctx,wh,setoff){
   		vTemperate[2] *= 2.5;
   	}
   	
-  	r = 10+setoff.vWarm_r/4;
-  	g = 10+setoff.vWarm_g/4;
-  	b = 10+setoff.vWarm_b/4;
+  	r = 0+setoff.vWarm_r/5;
+  	g = 0+setoff.vWarm_g/5;
+  	b = 0+setoff.vWarm_b/5;
     //r = 0; g = 0; b = 0;
   	vWarm = [r/100, g/100, b/100]; // haze_r = 25 haze_g = 25 haze_b = 25
   	
@@ -355,9 +359,9 @@ function initPlanet(ctx,wh,setoff){
   		vWarm[2] *= 2.5;
   	}
   	
-  	r = 10+setoff.vHot_r/4;
-  	g = 10+setoff.vHot_g/4;
-  	b = 10+setoff.vHot_b/4;
+  	r = 0+setoff.vHot_r/5;
+  	g = 0+setoff.vHot_g/5;
+  	b = 0+setoff.vHot_b/5;
     //r = 0; g = 0; b = 0;
   	vHot = [r/100, g/100, b/100]; // haze_r = 25 haze_g = 25 haze_b = 25
   	
@@ -367,9 +371,9 @@ function initPlanet(ctx,wh,setoff){
   		vHot[2] *= 2.5;
   	}
   	
-  	r = 10+setoff.vSpeckle_r/4;
-  	g = 10+setoff.vSpeckle_g/4;
-  	b = 10+setoff.vSpeckle_b/4;
+  	r = 0+setoff.vSpeckle_r/5;
+  	g = 0+setoff.vSpeckle_g/5;
+  	b = 0+setoff.vSpeckle_b/5;
     //r = 0; g = 0; b = 0;
   	vSpeckle = [r/100, g/100, b/100]; // haze_r = 25 haze_g = 25 haze_b = 25
   	
@@ -379,10 +383,10 @@ function initPlanet(ctx,wh,setoff){
   		vSpeckle[2] *= 2.5;
   	}
   	
-  	r = 10+setoff.vClouds_r/4;
-  	g = 10+setoff.vClouds_g/4;
-  	b = 10+setoff.vClouds_b/4;
-    r = 0; g = 0; b = 0;
+  	r = 0+setoff.vClouds_r/5;
+  	g = 0+setoff.vClouds_g/5;
+  	b = 0+setoff.vClouds_b/5;
+    // r = 0; g = 0; b = 0;
   	vClouds = [r/100, g/100, b/100]; // haze_r = 25 haze_g = 25 haze_b = 25
   	
   	if ( RAREClouds >= 1 ){
@@ -391,10 +395,10 @@ function initPlanet(ctx,wh,setoff){
   		vClouds[2] *= 2.5;
   	}
   	
-  	r = 30+0+setoff.vLightColor_r/4;
-  	g = 30+0+setoff.vLightColor_g/4;
-  	b = 30+0+setoff.vLightColor_b/4;
-    r = 0; g = 0; b = 0;
+  	r = 20+0+setoff.vLightColor_r/5;
+  	g = 20+0+setoff.vLightColor_g/5;
+  	b = 20+0+setoff.vLightColor_b/54;
+    // r = 0; g = 0; b = 0;
   	vLightColor = [r/100, g/100, b/100]; // haze_r = 25 haze_g = 25 haze_b = 25
   	
   	if ( RARELightColor >= 1 ){
@@ -403,10 +407,10 @@ function initPlanet(ctx,wh,setoff){
   		vLightColor[2] *= 2.5;
   	}
   	
-  	r = 0+0+setoff.vHaze_r/5;
-  	g = 0+0+setoff.vHaze_g/5;
-  	b = 0+0+setoff.vHaze_b/5;
-    r = 0; g = 0; b = 0;
+  	r = 0+0+setoff.vHaze_r/6;
+  	g = 0+0+setoff.vHaze_g/6;
+  	b = 0+0+setoff.vHaze_b/6;
+    // r = 0; g = 0; b = 0;
   	vHaze = [r/100, g/100, b/100]; // haze_r = 25 haze_g = 25 haze_b = 25
   	
   	if ( RAREHaze >= 1 ){

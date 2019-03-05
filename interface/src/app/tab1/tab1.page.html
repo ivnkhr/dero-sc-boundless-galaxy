@@ -1,8 +1,14 @@
 <ion-header>
   <ion-toolbar>
     <ion-title color="light">
-      Welcome
+      Welcome Here
     </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="solid" (click)="rootApp.ping_daemon()">
+        <ion-icon name="refresh-circle"></ion-icon>
+        Refresh Game State
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -12,11 +18,6 @@
     <ion-row>
       <ion-col>
         <ion-card color="light" class="welcome">
-          <img src="./assets/logo.png"/>
-          <ion-card-header>
-            <ion-card-subtitle>Get Started</ion-card-subtitle>
-            <ion-card-title>Welcome to Dero Gate (TESTNET VERSION)</ion-card-title>
-          </ion-card-header>
           <ion-card-content>
             by @plrspro
           </ion-card-content>

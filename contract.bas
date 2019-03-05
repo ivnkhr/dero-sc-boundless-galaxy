@@ -1,6 +1,6 @@
 /*
 
-	`Boundless Galaxy`
+	`Boundless Galaxy` @plrspro
 	
 	General notes:
 	none
@@ -12,7 +12,7 @@
 	Technical notes:
 	1. The UInt64 value type represents unsigned integers with values ranging from 0 to 18,446,744,073,709,551,615. 
 	2. Galaxy limitations obstructed for simplicity equalst to values ranging from 0 to 10 000 000 000 000 000 000
-
+	3. 1 DERO = 1000000000000 value
 */
 
 /* Service Functions and Utility */
@@ -59,7 +59,24 @@ Function Initialize() Uint64
 	
 	10 STORE("admin", SIGNER())   // store in DB  ["owner"] = address
 	
-	20 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 5)
+	11 STORE("stats_planet_counter", 0)
+	
+	12 STORE("colonize_fee", 1 * 1000000000000); //1 DERO
+	
+	13 STORE("moto_fee", 1 * 1000000000000); //1 DERO
+	
+	14 STORE("galaxy_center", (10000000000000000000/2) + ":" + (10000000000000000000/2))
+	15 STORE("galaxy_emperor_fee", 1 * 1000000000000) //1 DERO
+	16 STORE("galaxy_emperor_reset_height", 0)
+	17 STORE("galaxy_emperor_user", "")
+	
+	20 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 0)
+	21 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 1)
+	22 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 2)
+	23 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 3)
+	24 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 4)
+	25 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 5)
+	26 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 6)
 	
 	999 RETURN Info("Contract Successfully Deployed")
 End Function 
@@ -104,6 +121,35 @@ End Function
 
 
 /* Contract Core Functions */
+
+Function GalaxyEmperorReset() Uint64 
+
+	//If current block higher then offset relese current galaxy emperor and reset back to 0:0
+
+	999  RETURN 0
+End Function
+
+
+Function GalaxyEmperorOverbid() Uint64 
+
+
+	999  RETURN 0
+End Function
+
+
+Function SectorSetMoto() Uint64 
+
+
+	999  RETURN 0
+End Function
+
+
+Function UserSetAlias(new_name String) Uint64 
+
+	
+	999  RETURN 0
+End Function
+
 
 Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64) Uint64
 
@@ -187,24 +233,94 @@ Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64) 
     setoff.vRotspeed = 0; // 0-20
 	*/
 	
+	40 DIM planet_position as String
+	41 LET planet_position = position_x+":"+position_y+":"+position_z
+	
+	// Check if slot is free
+	42 IF EXISTS(planet_position + "/Owner") == 0 THEN GOTO 50
+	43 RETURN 1
+	
 	// All checkup passed now we can generate planet
-	100 STORE("["+position_x+":"+position_y+":"+position_z+"]/Owner", 			SIGNER())
 	
-	101 STORE("["+position_x+":"+position_y+":"+position_z+"]/RARECloudiness",  0 + RANDOM(100 + 1) )
-	102 STORE("["+position_x+":"+position_y+":"+position_z+"]/RARECold", 		0 + RANDOM(100 + 1) )
-	103 STORE("["+position_x+":"+position_y+":"+position_z+"]/RAREOcean", 		0 + RANDOM(100 + 1) )
-	104 STORE("["+position_x+":"+position_y+":"+position_z+"]/RARETemperate", 	0 + RANDOM(100 + 1) )
-	105 STORE("["+position_x+":"+position_y+":"+position_z+"]/RAREWarm", 		0 + RANDOM(100 + 1) )
-	106 STORE("["+position_x+":"+position_y+":"+position_z+"]/RAREHot", 		0 + RANDOM(100 + 1) )
-	107 STORE("["+position_x+":"+position_y+":"+position_z+"]/RARESpeckle", 	0 + RANDOM(100 + 1) )
-	108 STORE("["+position_x+":"+position_y+":"+position_z+"]/RAREClouds", 		0 + RANDOM(100 + 1) )
-	109 STORE("["+position_x+":"+position_y+":"+position_z+"]/RARELightColor", 	0 + RANDOM(100 + 1) )
+	50 PRINTF "Start Generation"
 	
-	110 STORE("["+position_x+":"+position_y+":"+position_z+"]/Speed", SIGNER())
-	111 STORE("["+position_x+":"+position_y+":"+position_z+"]/Direction", SIGNER())
+	94  STORE(planet_position + "/Mass", 			100 + RANDOM(1000))
+	95  STORE(planet_position + "/Population", 		1000000 + RANDOM(10000000000))
+	96  STORE(planet_position + "/AvgTemp", 		RANDOM(200))
 	
-	200 STORE(user+"_index_"+stack_index, "["+position_x+":"+position_y+":"+position_z+"]")
+	97  STORE(planet_position + "/OnSale", 			0)
+	98  STORE(planet_position + "/Name", 			"")
+	99  STORE(planet_position + "/Moto", 			"")
+	100 STORE(planet_position + "/Owner", 			user)
+	
+	101 STORE(planet_position + "/RARECloudiness",  0 + RANDOM(100 + 1) )
+	102 STORE(planet_position + "/RARECold", 		0 + RANDOM(100 + 1) )
+	103 STORE(planet_position + "/RAREOcean", 		0 + RANDOM(100 + 1) )
+	104 STORE(planet_position + "/RARETemperate", 	0 + RANDOM(100 + 1) )
+	105 STORE(planet_position + "/RAREWarm", 		0 + RANDOM(100 + 1) )
+	106 STORE(planet_position + "/RAREHot", 		0 + RANDOM(100 + 1) )
+	107 STORE(planet_position + "/RARESpeckle", 	0 + RANDOM(100 + 1) )
+	108 STORE(planet_position + "/RAREClouds", 		0 + RANDOM(100 + 1) )
+	109 STORE(planet_position + "/RARELightColor", 	0 + RANDOM(100 + 1) )
+	
+	110 STORE(planet_position + "/vWaterLevel", 	0 + RANDOM( 40 + 1) )
+	111 STORE(planet_position + "/vRivers", 		0 + RANDOM(100 + 1) )
+	112 STORE(planet_position + "/vTemperature", 	0 + RANDOM( 40 + 1) )
+	113 STORE(planet_position + "/vCloudiness", 	0 + RANDOM( 20 + 1) )
+	
+	114 STORE(planet_position + "/vCold_r", 		0 + RANDOM(100 + 1) )
+	115 STORE(planet_position + "/vCold_g", 		0 + RANDOM(100 + 1) )
+	116 STORE(planet_position + "/vCold_b", 		0 + RANDOM(100 + 1) )
+	
+	117 STORE(planet_position + "/vOcean_r", 		0 + RANDOM(100 + 1) )
+	118 STORE(planet_position + "/vOcean_g", 		0 + RANDOM(100 + 1) )
+	119 STORE(planet_position + "/vOcean_b", 		0 + RANDOM(100 + 1) )
+	
+	120 STORE(planet_position + "/vTemperate_r", 	0 + RANDOM(100 + 1) )
+	121 STORE(planet_position + "/vTemperate_g", 	0 + RANDOM(100 + 1) )
+	122 STORE(planet_position + "/vTemperate_b", 	0 + RANDOM(100 + 1) )
+	
+	123 STORE(planet_position + "/vWarm_r", 		0 + RANDOM(100 + 1) )
+	124 STORE(planet_position + "/vWarm_g", 		0 + RANDOM(100 + 1) )
+	125 STORE(planet_position + "/vWarm_b", 		0 + RANDOM(100 + 1) )
+	
+	126 STORE(planet_position + "/vHot_r", 			0 + RANDOM(100 + 1) )
+	127 STORE(planet_position + "/vHot_g", 			0 + RANDOM(100 + 1) )
+	128 STORE(planet_position + "/vHot_b", 			0 + RANDOM(100 + 1) )
+	
+	129 STORE(planet_position + "/vSpeckle_r", 		0 + RANDOM(100 + 1) )
+	130 STORE(planet_position + "/vSpeckle_g", 		0 + RANDOM(100 + 1) )
+	131 STORE(planet_position + "/vSpeckle_b", 		0 + RANDOM(100 + 1) )
+		
+	132 STORE(planet_position + "/vClouds_r", 		0 + RANDOM(100 + 1) )
+	133 STORE(planet_position + "/vClouds_g", 		0 + RANDOM(100 + 1) )
+	134 STORE(planet_position + "/vClouds_b", 		0 + RANDOM(100 + 1) )
+	
+	135 STORE(planet_position + "/vLightColor_r", 	0 + RANDOM(100 + 1) )
+	136 STORE(planet_position + "/vLightColor_g", 	0 + RANDOM(100 + 1) )
+	137 STORE(planet_position + "/vLightColor_b", 	0 + RANDOM(100 + 1) )
+	
+	138 STORE(planet_position + "/vHaze_r", 		0 + RANDOM(100 + 1) )
+	139 STORE(planet_position + "/vHaze_g", 		0 + RANDOM(100 + 1) )
+	140 STORE(planet_position + "/vHaze_b", 		0 + RANDOM(100 + 1) )
+	
+	141 STORE(planet_position + "/fixtures01",  	0 + RANDOM( 20 + 1) )
+	142 STORE(planet_position + "/fixtures02", 		0 + RANDOM(100 + 1) )
+	143 STORE(planet_position + "/fixtures03", 		0 + RANDOM(100 + 1) )
+	144 STORE(planet_position + "/fixtures04", 		0 + RANDOM( 10 + 1) )
+	145 STORE(planet_position + "/fixtures05", 		0 + RANDOM(  7 + 1) )
+	146 STORE(planet_position + "/fixtures06", 		0 + RANDOM(220 + 1) )
+	147 STORE(planet_position + "/fixtures07", 		0 + RANDOM( 80 + 1) )
+	148 STORE(planet_position + "/fixtures08", 		0 + RANDOM(  9 + 1) )
+	149 STORE(planet_position + "/fixtures09", 		0 + RANDOM( 20 + 1) )
+	
+	150 STORE(planet_position + "/vAngle", 			0 + RANDOM( 60 + 1) )
+	151 STORE(planet_position + "/vRotspeed", 		0 + RANDOM( 20 + 1) )
+	
+	200 STORE(user+"_index_"+stack_index, planet_position)
 	201 STORE(user+"_index", stack_index + 1)
+	
+	202 STORE("stats_planet_counter", LOAD("stats_planet_counter") + 1)
 	
 	300 RETURN 0
 	

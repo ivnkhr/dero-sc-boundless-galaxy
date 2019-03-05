@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title color="light">
+      Welcome Here
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="solid" (click)="rootApp.ping_daemon()">
+        <ion-icon name="refresh-circle"></ion-icon>
+        Refresh Game State
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col size="12">
+        <ion-card color="light">
+          <ion-card-header>
+            <ion-card-title>View Empire</ion-card-title>
+          </ion-card-header>
+        
+          <ion-card-content>
+            <ion-item color="dark">
+              <ion-label position="stacked">Enter <b>wallet adress</b> you want to exemine</ion-label>
+              <ion-input [(ngModel)]="wallet"></ion-input>
+            </ion-item>
+            <br/>
+            <ion-button fill="solid" expand="block" (click)="fetch_posessions()">
+              <ion-icon name="code-download"></ion-icon>
+              Get
+            </ion-button>
+          </ion-card-content>
+          
+          <div class="tip" *ngIf="search_status==1">Nothing found</div>
+          
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+</ion-content>
