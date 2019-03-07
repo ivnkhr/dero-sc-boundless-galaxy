@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { TabposessionsPage } from './tabposessions.page';
+import { PlanetrendererComponent } from '../planetrenderer/planetrenderer.component';
 
 @NgModule({
   imports: [
@@ -15,6 +16,6 @@ import { TabposessionsPage } from './tabposessions.page';
       { path: '', component: TabposessionsPage }
     ])
   ],
-  declarations: [TabposessionsPage]
+  declarations: [TabposessionsPage, PlanetrendererComponent]
 })
 export class TabposessionsPageModule {}

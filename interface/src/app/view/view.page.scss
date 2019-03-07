@@ -89,7 +89,7 @@ $color-common: white;
 }
 .cardRarity1{
   border: 2px solid rgba(20,70,255,1)!important;
-  b{ color: blue; }
+  b{ color: #1137ff; }
 }
 .cardRarity2{
   border: 2px solid rgba(188,0,180,1)!important;
@@ -108,7 +108,54 @@ $color-common: white;
   b{ color: yellow; }
 }
 
-.planet-list, .planet-card{
+.planet-card:hover{
+  background-color: rgba(20,20,20,1.0);
+}
+
+.no-render{
+  //display: none;
+}
+
+.owned-by{
+  font-size: 12px;
+  color: #ccc;
+}
+
+.planet_tip{
+  // background-color: rgba(20, 20, 20, 0.4);
+  color: white;
+  font-size: 11px;
+  top: 50%;
+  left: 50%;
+  position: fixed;
+  z-index: 1;
+  width: 140px;
+  margin-left: -70px;
+  overflow: hidden;
+  transition: all 3s ease;
+  border-radius: 6px;
+  padding: 2px;
+  text-align: center;
+  color: white;
+  text-shadow: 0px 0px 2px yellow;
+}
+
+#planet_renderer{
+  &.render_0{ #planetFocus0{ display: block; } }
+  &.render_1{ #planetFocus1{ display: block; } }
+  &.render_2{ #planetFocus2{ display: block; } }
+  &.render_3{ #planetFocus3{ display: block; } }
+  &.render_4{ #planetFocus4{ display: block; } }
+  &.render_5{ #planetFocus5{ display: block; } }
+  &.render_6{ #planetFocus6{ display: block; } }
+  .cis{
+    margin: 0 auto;
+    display: none;
+  }
+}
+
+.planet-list, .planet-card, .planet-moto{
+  z-index: 4;
   .heared-card{
     width: 100%;
   }
@@ -138,6 +185,17 @@ $color-common: white;
   &.cardlock-1{
     opacity: 0.5;
   }
+}
+
+.owner{
+  cursor: pointer;
+}
+
+.planet-moto{
+  position: absolute;
+  top: 15px;
+  left: auto;
+  right: 15px;
 }
 
 .planet-list{

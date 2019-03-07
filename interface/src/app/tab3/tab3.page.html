@@ -5,8 +5,7 @@
     </ion-title>
     <ion-buttons slot="end">
       <ion-button fill="solid" (click)="saveEndpoints()">
-        <ion-icon slot="start" name="save"></ion-icon>
-        Save
+        <ion-icon slot="start" name="save"></ion-icon> Save
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -29,12 +28,10 @@
             </ion-item>
             <br/>
             <ion-button fill="solid" expand="block" (click)="rootApp.load_game_settings()">
-              <ion-icon name="code-download"></ion-icon>
-              Fetch
+              <ion-icon slot="start" name="code-download"></ion-icon> Fetch
             </ion-button>
             <ion-button *ngIf="rootApp.contract_response" fill="solid" expand="block" (click)="rootApp.view_contract()">
-              <ion-icon name="code"></ion-icon>
-              View Contract Source
+              <ion-icon slot="start" name="code"></ion-icon> View Contract Source
             </ion-button>
           </ion-card-content>
         </ion-card>
@@ -59,11 +56,22 @@
               Ping
             </ion-button>
             <br/>
-            <div *ngIf="rootApp.wallet_response">
-              <div *ngFor="let item of rootApp.wallet_response.result | keyvalue"><b>{{item.key}}</b>: {{item.value}}</div>
-            </div>
           </ion-card-content>
         </ion-card>
+        
+        <ion-card color="light">
+          <ion-card-header>
+            <ion-card-title>Wallet Address</ion-card-title>
+          </ion-card-header>
+        
+          <ion-card-content>
+            <ion-item color="dark">
+              <ion-label position="stacked">Current <b>dERo</b> wallet address</ion-label>
+              <ion-input [disabled]="rootApp.wallet_status==3" [(ngModel)]="rootApp.wallet_address"></ion-input>
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
+        
       </ion-col>
       <ion-col sizeXs="12" sizeSm="12" sizeMd="6">
         <ion-card color="light">

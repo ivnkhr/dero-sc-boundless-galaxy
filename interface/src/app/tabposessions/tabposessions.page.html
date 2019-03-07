@@ -5,8 +5,7 @@
     </ion-title>
     <ion-buttons slot="end">
       <ion-button fill="solid" (click)="rootApp.ping_daemon()">
-        <ion-icon name="refresh-circle"></ion-icon>
-        Refresh Game State
+        <ion-icon slot="start" name="refresh-circle"></ion-icon> Refresh Game State
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -24,21 +23,148 @@
         
           <ion-card-content>
             <ion-item color="dark">
-              <ion-label position="stacked">Enter <b>wallet adress</b> you want to exemine</ion-label>
+              <ion-label position="stacked">Enter <b>wallet adress (starting with dERo...)</b> you want to exemine</ion-label>
               <ion-input [(ngModel)]="wallet"></ion-input>
             </ion-item>
             <br/>
             <ion-button fill="solid" expand="block" (click)="fetch_posessions()">
-              <ion-icon name="code-download"></ion-icon>
-              Get
+              <ion-icon slot="start" name="code-download"></ion-icon> Get
             </ion-button>
           </ion-card-content>
           
           <div class="tip" *ngIf="search_status==1">Nothing found</div>
           
         </ion-card>
+        
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="enchant_subjec">
+      <ion-col class="center">
+        
+        <ion-card color="light">
+          <ion-card-content>
+            
+            <b>Enchanting Process</b>
+            
+            <div class="description">
+                describe enchantment process
+            </div>
+            <br/>
+            
+            <div class="title">
+              <span *ngIf="enchant_subjec.vRarityRate==0">Common</span>
+              <span *ngIf="enchant_subjec.vRarityRate==1">Rare</span>
+              <span *ngIf="enchant_subjec.vRarityRate==2">Legendary</span>
+              <span *ngIf="enchant_subjec.vRarityRate==3">EPIC</span>
+              {{enchant_subjec.Name}}
+            </div>
+            
+            <div title="{{enchant_subjec.Owner}}">owned by <u>{{rootApp.display_nickname(enchant_subjec.Owner)}}</u></div>
+            <br/>
+            
+            <ion-button fill="solid" color="danger" size="small" (click)="this.enchant_subjec=null">
+              <ion-icon slot="start" name="close"></ion-icon> Exit Enchancment Mod
+            </ion-button>
+            
+          </ion-card-content>
+        </ion-card>
+        
+      </ion-col>  
+    </ion-row>
+    <ion-row *ngIf="search_status==2">
+      <ion-col>
+        
+        <ion-card color="light">
+          <ion-card-content>
+            <ion-virtual-scroll [items]="results" [headerFn]="myHeaderFn">
+              <ion-item-divider *virtualHeader="let header">
+                {{ header }}
+              </ion-item-divider>
+              <ion-item [disabled]="(enchant_subjec && (planet_focus.planet_position === enchant_subjec.planet_position))" color="light" *virtualItem="let planet_focus">
+              
+                <ion-grid class="raritybox{{planet_focus.vRarityRate}}">
+                  <ion-row align-items-center>
+                    <ion-col size="3" class="center">
+                    
+                      <app-planetrenderer [item]="planet_focus"></app-planetrenderer>
+                      
+                    </ion-col>
+                    <ion-col size="6">
+                      
+                      <div>
+                        <div class="title">
+                          <span *ngIf="planet_focus.vRarityRate==0">Common</span>
+                          <span *ngIf="planet_focus.vRarityRate==1">Rare</span>
+                          <span *ngIf="planet_focus.vRarityRate==2">Legendary</span>
+                          <span *ngIf="planet_focus.vRarityRate==3">EPIC</span>
+                          {{planet_focus.Name}}
+                        </div>
+                        <div title="{{planet_focus.Owner}}">owned by <u class="owner">{{rootApp.display_nickname(planet_focus.Owner)}}</u></div>
+                        
+                        <div class="description">
+                          <div [innerHTML]="planet_focus.Moto">...</div>
+                          <div>Card Power: {{planet_focus.vRarityAbsolute}}%</div>
+                        </div>
+
+                      </div>
+                      
+                    </ion-col>
+                    <ion-col size="3" class="center">
+                      
+                      <ion-button fill="solid" size="small" expand="block" (click)="null">
+                        <ion-icon slot="start" name="eye"></ion-icon> View Sector
+                      </ion-button>
+                      
+                      <div *ngIf="planet_focus.Owned">
+                        
+                        <div *ngIf="!this.enchant_subjec">
+                        
+                          <ion-button fill="solid" color="success" size="small" expand="block" (click)="null">
+                            <ion-icon slot="start" name="color-wand"></ion-icon> Change Description
+                          </ion-button>
+                          
+                          <ion-button fill="solid" color="tertiary" size="small" expand="block" (click)="enchant(planet_focus.planet_position)">
+                            <ion-icon slot="start" name="flask"></ion-icon> Enchance Card
+                          </ion-button>
+                          
+                          <ion-button fill="solid" color="warning" size="small" expand="block" (click)="null">
+                            <ion-icon slot="start" name="wallet"></ion-icon> Put On Sell
+                          </ion-button>
+                          
+                        </div>
+                      
+                        <div *ngIf="this.enchant_subjec">
+                        
+                          <ion-button *ngIf="!(enchant_subjec && (planet_focus.planet_position === enchant_subjec.planet_position))" fill="solid" color="warning" size="large" expand="block" (click)="flame(planet_focus.planet_position)">
+                            <ion-icon slot="start" name="flame"></ion-icon> Use Card
+                          </ion-button>
+                          
+                        </div>
+                      
+                      </div>
+                      
+                      <div *ngIf="!planet_focus.Owned">
+                        
+                        <ion-button *ngIf="planet_focus.OnSale" fill="solid" color="warning" size="small" expand="block" (click)="null">
+                          <ion-icon slot="start" name="cart"></ion-icon> Buy Card ({{planet_focus.OnSale}} DERO)
+                        </ion-button>
+                        
+                      </div>
+                      
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+
+                
+                
+              </ion-item>
+            </ion-virtual-scroll>
+          </ion-card-content>
+        </ion-card>
+          
       </ion-col>
     </ion-row>
   </ion-grid>
+
 
 </ion-content>

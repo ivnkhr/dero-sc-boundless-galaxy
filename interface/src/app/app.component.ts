@@ -1,12 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef  } from '@angular/core';
 
 import { Storage } from '@ionic/storage';
 import { Platform, LoadingController, ToastController, AlertController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ModalController } from '@ionic/angular';
 import { ModalExample } from '../modal/modal.page';
+const bigInt = require('big-integer');
 
 export enum AgentStatus {
    checking = 1,
@@ -28,6 +30,7 @@ export enum AgentStatusColors {
 })
 export class AppComponent {
   constructor(
+    private router: Router,
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
@@ -36,7 +39,8 @@ export class AppComponent {
     public modalController: ModalController,
     public loadingController: LoadingController,
     public toastController: ToastController,
-    public alertController: AlertController
+    public alertController: AlertController,
+    private cdRef: ChangeDetectorRef
   ) {
     this.initializeApp();
   }
@@ -50,16 +54,18 @@ export class AppComponent {
   public wallet_response = null;
   public daemon_response = null;
   public wallet_execution_response = null;
-  public wallet_address = 'unauth';
+  public wallet_address = '';
 
   public settings_laoded = null;
 
-  public contract = 'da0e2384207c9f5d7c0dc2cdeab1463c0cf1c2c1ce81337a742e69b5f6c34a63';
+  public contract = 'bd7722265129732e221a34a8cd977d5df84bf12297933fd4f86ccbc44dfb5483';
   public contract_response = null;
   public variables = [''];
   public active_method = null;
   public command = {};
   public soundList = {};
+
+  public nicks_list = {};
 
   public loadingState = null;
   async presentLoadingWithOptions(text) {
@@ -82,16 +88,55 @@ export class AppComponent {
   }
 
   public onChain_position(pos) {
-
-    return 10000000000000000000 / 2 + parseInt(pos, 10);
+    const position = bigInt( '500000000000000' ) .add( parseInt(pos, 10) );
+    return position;
   }
 
   public onChain_value(full_dero) {
     return full_dero / 100000000000;
   }
 
+  public display_nickname(address) {
+    if ( address == null || typeof( address ) === 'undefined' ) {
+      return '';
+    }
+    if ( typeof( this.nicks_list[address] ) !== 'undefined' && this.nicks_list[address] !== '#loading#' ) {
+      return '' + this.nicks_list[address];
+    } else if ( typeof( this.nicks_list[address] ) !== 'undefined' && this.nicks_list[address] === '#loading#' ) {
+      return 'Unknown';
+    } else {
+      this.initNickloadingProcess(address);
+      return 'Unknown';
+    }
+  }
+
+  public initNickloadingProcess(address) {
+    console.log('initNickloadingProcess', address);
+    this.nicks_list[address] = '#loading#';
+    const params = {'txs_hashes': [this.contract], 'sc_keys': [address + '_nick']};
+    this.http.post(this.daemon + '/gettransactions', JSON.stringify(params))
+    .toPromise()
+    .then(responseAfterSuccess => {
+      if (responseAfterSuccess && responseAfterSuccess['status'] === 'OK') {
+        setTimeout( () => this.nicks_list[address] = Math.random(), 6000 );
+      }
+    });
+  }
+
   public async getPlanetFromBlockchainXYZ(x, y, z) {
     return await this.getPlanetFromBlockchain('' + this.onChain_position(x) + ':' + this.onChain_position(y) + ':' + z + '');
+  }
+
+  public enchant_card(pos) {
+    // alert(pos);
+    // console.log('pre nav', pos);
+    this.router.navigate(['/app/tabposessions'], {queryParams: {enchant: pos}});
+  }
+
+  public view_owner(pos) {
+    // alert(pos);
+    // console.log('pre nav', pos);
+    this.router.navigate(['/app/tabposessions'], {queryParams: {owner: pos}});
   }
 
   public async getPlanetFromBlockchain(pos) {
@@ -102,6 +147,8 @@ export class AppComponent {
     const keys = [];
     let planet_pos = '';
     planet_pos = pos; // '' + this.onChain_position(x) + ':' + this.onChain_position(y) + ':' + z + '';
+
+    // console.log( planet_pos );
 
     keys.push(planet_pos + '/Mass');
     keys.push(planet_pos + '/Population');
@@ -177,9 +224,13 @@ export class AppComponent {
     keys.push(planet_pos + '/vAngle');
     keys.push(planet_pos + '/vRotspeed');
 
+    keys.push(planet_pos + '/index_in_stack');
+    keys.push(planet_pos + '/txid');
+    keys.push(planet_pos + '/planet_position');
+
     const setoff = {};
 
-    const res = await this.fetch_contract(keys, false);
+    const res = await this.fetch_contract(keys, false, true);
     if ( res != null ) {
       // Blockchain got an actual data
       // Parse keys per planet
@@ -191,7 +242,13 @@ export class AppComponent {
 
           // console.log(key, contract_keys[key]);
           const key_split = key.split('/')[1];
-          if ( key_split !== 'Name' && key_split !== 'Moto' && key_split !== 'Owner' ) {
+          if (
+            key_split !== 'Name' &&
+            key_split !== 'Moto' &&
+            key_split !== 'planet_position' &&
+            key_split !== 'txid' &&
+            key_split !== 'Owner'
+          ) {
             setoff[key_split] = +contract_keys[key];
           } else {
             setoff[key_split] = contract_keys[key];
@@ -220,8 +277,12 @@ export class AppComponent {
         parseInt(setoff.RAREClouds, 10) +
         parseInt(setoff.RARELightColor, 10); // +
 
-        setoff.vRarityAbsolute = Math.round(rarity_rate_abs / 9);
-        const rarity_chance = 10;
+        setoff.vRarityAbsolute = Math.round(rarity_rate_abs / 9 / 4);
+        if ( setoff.vRarityAbsolute >= 100 ) {
+          setoff.vRarityAbsolute = 100;
+        }
+
+        const rarity_chance = 5;
         setoff.RARECloudiness = Math.floor( parseInt(setoff.RARECloudiness + rarity_chance /*chance %*/, 10) / 100 );
         setoff.RARECold = Math.floor( parseInt(setoff.RARECold + rarity_chance /*chance %*/, 10) / 100 );
         setoff.RAREOcean = Math.floor( parseInt(setoff.RAREOcean + rarity_chance /*chance %*/, 10) / 100 );
@@ -234,9 +295,13 @@ export class AppComponent {
 
         // console.log( setoff.Owner.length );
         // return null;
-
+        setoff.Owned = false;
         if ( setoff.Owner.length === 0 ) {
           return null;
+        } else {
+          if ( setoff.Owner === this.wallet_address ) {
+            setoff.Owned = true;
+          }
         }
 
         if ( setoff.Name.length === 0 ) {
@@ -244,9 +309,9 @@ export class AppComponent {
         }
 
         if ( setoff.Moto.length === 0 ) {
-          setoff.Moto  = 'Planet Mass:' + setoff.Mass + ' ∇<br/>';
+          setoff.Moto  = 'Planet Mass: ' + setoff.Mass + ' ∇<br/>';
           setoff.Moto += 'Population: ≈' + setoff.Population + '<br/>';
-          setoff.Moto += 'Temperature: ' + (+setoff.AvgTemp + Math.random() * 20).toFixed(2) + '° <br/>';
+          setoff.Moto += 'Temperature: ' + (+setoff.AvgTemp + Math.random() * 20).toFixed(2) + ' °<br/>';
         }
 
         const rarity_rate =
@@ -324,7 +389,7 @@ export class AppComponent {
     const alert = await this.alertController.create({
       header: 'Confirm interaction',
       subHeader: 'Buy pressing okay, wallet will execute folowing command:',
-      message: '<b>' + method + (value ? '(' + this.onChain_value(value) + ' DERO)' : '') + '<b>:<br/>' + line,
+      message: '<b>' + method + (value ? ' (' + this.onChain_value(value) + ' DERO)' : '') + '<b>:<br/>' + line,
       buttons: [
         {
           text: 'Cancel',
@@ -346,6 +411,8 @@ export class AppComponent {
                 this.toast( responseAfterSuccess['error']['message'], 'warning' );
               } else {
                 this.wallet_execution_response = responseAfterSuccess;
+                this.toast(
+                  'Transaction sent to Blockchain. Once its mined press (Refresh Blockchain State) to see results.', 'succsess');
               }
             })
             .catch(responseAfterError => {
@@ -358,7 +425,7 @@ export class AppComponent {
               // console.log('curl -X POST ' + (this.wallet) + '/json_rpc -H "Content-Type: application/json" -d ' + data);
 
               this.toast(
-                'curl -X POST ' + (this.wallet) + '/json_rpc -H "Content-Type: application/json" -d ' + data,
+                'curl -X POST ' + (this.wallet) + '/json_rpc -H "Content-Type: application/json" -d ' + JSON.stringify((data)),
                 'dark',
                 'bottom',
                 15000 );
@@ -388,7 +455,7 @@ export class AppComponent {
     ]);
   }
 
-  public async fetch_contract(sc_keys, ignore_loading) {
+  public async fetch_contract(sc_keys, ignore_loading, ignore_error = false) {
     console.log('Ping: Contract');
     this.active_method = null;
     const params = {'txs_hashes': [this.contract], 'sc_keys': []};
@@ -415,7 +482,9 @@ export class AppComponent {
       }
     })
     .catch(responseAfterError => {
-      this.toast('Cannot reach Daemon endpoint, please verify settings', 'danger');
+      if ( ignore_error === false ) {
+        this.toast('Cannot reach Daemon endpoint, please verify settings', 'danger');
+      }
       this.contract_response = null;
     });
 
@@ -455,14 +524,16 @@ export class AppComponent {
     this.http.post(this.wallet + '/json_rpc', data, httpOptions).subscribe(
       responseAfterSuccess => {
         const subject = responseAfterSuccess;
-        if (subject['id'] === 0) {
+        if (subject['id'] === 0 && !subject['error']) {
           this.wallet_response = subject;
           this.wallet_status = 3;
+          this.wallet_address = 'set';
           //
         } else {
-          this.toast('Cannot reach wallet endpoint.', 'warning');
+          this.toast('Cannot reach wallet endpoint. Make sure it is accessible.', 'danger');
           // alert('Error: Something went wrong');
           this.wallet_response = null;
+          this.wallet_status = 0;
         }
         // loading.dismiss();
       },
@@ -472,7 +543,8 @@ export class AppComponent {
         prep_data = JSON.stringify(prep_data);
         $('.pre1').text("curl -X POST "+($('.wallet_rpc').val())+"json_rpc -H \"Content-Type: application/json\" -d "+prep_data);
         */
-        this.toast('Cannot reach wallet endpoint. Make sure wallet is running with --rpc-server', 'danger');
+        this.toast(
+          'Cannot reach wallet endpoint. Make sure wallet is running with --rpc-server or continue using dApp in offline mode.', 'danger');
         // web Version
         // electron Version
         this.wallet_status = 0;
@@ -492,8 +564,6 @@ export class AppComponent {
     };
     const params = {};
     const data = JSON.stringify({ 'jsonrpc' : '2.0', 'id': 0, 'method': 'get_info', 'params': params});
-
-
     const loading = await this.presentLoadingWithOptions('Loading Daemon State');
 
     this.http.post(this.daemon + '/json_rpc', data, httpOptions).subscribe(
@@ -548,6 +618,12 @@ export class AppComponent {
           this.ping_daemon();
         });
 
+        this.storage.get('wallet_address').then((val) => {
+          if (val) {
+            console.log('Your wallet_address is', val);
+            this.wallet_address = val;
+          }
+        });
 
         // this.register_sound('beep', 'click.wav');
         // this.register_sound('deepbeep', '131658__bertrof__game-sound-selection.wav');

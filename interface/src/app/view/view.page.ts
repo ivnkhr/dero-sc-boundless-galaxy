@@ -41,8 +41,6 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
 
   async ngAfterViewInit() {
 
-    this.updateView();
-
   }
 
   async ngOnInit() {
@@ -55,7 +53,8 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
       this.y = params.params.y;
 
       drawRandomUni(document.querySelector('.local'), this.x + ':' + this.y);
-
+      this.updateView();
+      this.update_tip_positions();
     });
 
   }
@@ -67,6 +66,34 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  private update_tip_positions() {
+    try {
+      setTimeout( () => {
+        // change tip pos
+        for (i = 0; i < 7; i++) {
+          if ( this.dataArray[i] ) {
+            try {
+              const planet_elem = document.querySelector('#c' + i);
+              const x = window.scrollX + planet_elem.getBoundingClientRect().left; // X
+              const y = window.scrollY + planet_elem.getBoundingClientRect().top; // Y
+              // console.log(x, y);
+              const tip_elem = document.querySelector('.tip_' + i);
+              // (10 - Math.random() * 20)
+              tip_elem.style.left = x + 45 + (10 - Math.random() * 20) + 'px';
+              tip_elem.style.top = y - 10 + (10 - Math.random() * 20) + 'px';
+              // console.log(tip_elem, tip_elem.style.left, tip_elem.style.top);
+            } catch (err) {
+              // err
+            }
+          }
+        }
+        this.update_tip_positions();
+      }, 3000);
+    } catch (err) {
+      // err
+    }
+
+  }
 
   public async fetchPlanets() {
 
@@ -75,7 +102,7 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     const keys = [];
     for (i = 0; i < 7; i++) {
       this.dataArray[i] = await this.rootApp.getPlanetFromBlockchainXYZ(this.x, this.y, i);
-      console.log(this.dataArray[i]);
+      // console.log(this.dataArray[i]);
     }
 
     // Fill in dataArray
@@ -104,6 +131,10 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
 
         this.storage.ready().then(() => {
           this.storage.set(this.x + ':' + this.y, i);
+          this.storage.get('total_discovered').then(async (value) => {
+            // console.log('new', value);
+            this.storage.set('total_discovered', value - val + i);
+          });
         });
 
       });
@@ -119,15 +150,16 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     // setTimeout(() => {
     let i = 0;
     this.dataArray.forEach((item) => {
-      console.log(item);
+      // console.log(item);
       if (item !== undefined && item !== null) {
-        console.log(i, 'entered', item);
+        // console.log(i, 'entered', item);
         this.glContexts.push(initPlanet('c' + i, 60, item));
+        this.glContexts.push(initPlanet('planetFocus' + i, 300, item));
         // document.getElementById('c' + i).style.setProperty('--planet-size', item.vPlanetMass + 'px');
       }
       i++;
     });
-    console.log('drawPlanets');
+    // console.log('drawPlanets');
     // }, 1000);
   }
 
@@ -136,9 +168,8 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     this.rootApp.execute_command('PlanetAcquire', {
       position_x: this.rootApp.onChain_position(this.x),
       position_y: this.rootApp.onChain_position(this.y),
-      position_z: (6 - slot),
-      value: 0
-    });
+      position_z: (1 + slot).toString(),
+    }, 10000);
   }
 
   focusCard(id) {
@@ -147,16 +178,40 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     const item = this.dataArray[id];
     if (item !== undefined && item !== null) {
       this.planet_focus = item;
-      this.glContexts.push(initPlanet('planetFocus', 300, item));
-      console.log('Render Planet', item);
+      // console.log(item);
+      try {
+        setTimeout( () => {
+          /*
+          while (planet_renderer.firstChild) {
+            planet_renderer.removeChild(planet_renderer.firstChild);
+          }
+          */
+          /*
+          const planet_renderer = document.getElementById ( 'planet_renderer' );
+          const no_renderer = document.getElementById ( 'no_renderer' );
+          const subject = document.getElementById ( 'planetFocus' + id );
+
+          while (planet_renderer.firstChild) {
+            no_renderer.appendChild ( planet_renderer.firstChild );
+          }
+
+          planet_renderer.appendChild ( subject );
+          */
+        }, 100 );
+        // setTimeout( () => initPlanet('planetFocus', 300, this.planet_focus), 100 );
+      } catch (err) {
+        // err
+      }
+      // console.log('Render Planet', item);
     }
   }
 
   mouseEnter(div: string) {
-    console.log('mouse enter :' + div);
+    // console.log('mouse enter :' + div);
     this.hover = parseInt( div, 10 );
     // this.rootApp.soundList['beep'].play();
     if (this.lock === -1) {
+      this.planet_focus = null;
       this.focusCard(div);
     }
   }

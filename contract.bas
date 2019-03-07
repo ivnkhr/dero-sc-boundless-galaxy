@@ -11,7 +11,7 @@
 
 	Technical notes:
 	1. The UInt64 value type represents unsigned integers with values ranging from 0 to 18,446,744,073,709,551,615. 
-	2. Galaxy limitations obstructed for simplicity equalst to values ranging from 0 to 10 000 000 000 000 000 000
+	2. Galaxy limitations obstructed for simplicity equalst to values ranging from 0 to 1 000 000 000 000 000 (due to js MAX_INT_VALUE)
 	3. 1 DERO = 1000000000000 value
 */
 
@@ -57,29 +57,58 @@ Function Initialize() Uint64
 	
 	// Galaxy center is
 	
-	10 STORE("admin", SIGNER())   // store in DB  ["owner"] = address
+	10 STORE("admin", SIGNER()) // store in DB  ["owner"] = address
 	
 	11 STORE("stats_planet_counter", 0)
 	
-	12 STORE("colonize_fee", 1 * 1000000000000); //1 DERO
+	12 STORE("variable_colonize_fee", 				1.00 * 1000000000000) 		// 1 DERO
+	13 STORE("variable_sector_moto_fee", 			0.50 * 1000000000000)		// 1 DERO
+	14 STORE("variable_nickname_fee", 				0.025 * 1000000000000)	 	// 1 DERO
+	15 STORE("variable_emperor_discount_per_topo",	(1000000000000 / 2) * 7200) // ~7200 blocks(topos) per day = (1000000000000 / 2) * 7200) half a dero per day
+	16 STORE("variable_dev_fee",					5)							// 5% goes to the dev fee
 	
-	13 STORE("moto_fee", 1 * 1000000000000); //1 DERO
+	14 STORE("galaxy_center", "" + (1000000000000000/2) + ":" + (1000000000000000/2))
 	
-	14 STORE("galaxy_center", (10000000000000000000/2) + ":" + (10000000000000000000/2))
-	15 STORE("galaxy_emperor_fee", 1 * 1000000000000) //1 DERO
-	16 STORE("galaxy_emperor_reset_height", 0)
-	17 STORE("galaxy_emperor_user", "")
+	16 STORE("emperor_bid", 0)
+	16 STORE("emperor_last_check_topo", 0)
+	17 STORE("emperor_user", "")
 	
-	20 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 0)
-	21 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 1)
-	22 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 2)
-	23 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 3)
-	24 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 4)
-	25 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 5)
-	26 PlanetAcquire(10000000000000000000/2, 10000000000000000000/2, 6)
+	18 STORE("balance_dev_fee", 0)
+	19 STORE("balance_shared_pool", 0)
+	
+	20 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 0)
+	21 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 1)
+	22 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 2)
+	23 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 3)
+	24 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 4)
+	25 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 5)
+	26 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 6)
+	
+	27 PlanetAcquire(1000000000000000/2-1, 1000000000000000/2, 5)
+	28 PlanetAcquire(1000000000000000/2-1, 1000000000000000/2, 6)
 	
 	999 RETURN Info("Contract Successfully Deployed")
 End Function 
+
+
+Function CalculateCardPower(planet_position String) Uint64
+
+	DIM sum as Uint64
+	LET sum = 0
+	
+	10 sum = sum + LOAD(planet_position + "/RARECloudiness")
+	20 sum = sum + LOAD(planet_position + "/RARECold")
+	30 sum = sum + LOAD(planet_position + "/RAREOcean")
+	40 sum = sum + LOAD(planet_position + "/RARETemperate")
+	50 sum = sum + LOAD(planet_position + "/RAREWarm")
+	60 sum = sum + LOAD(planet_position + "/RAREHot")
+	70 sum = sum + LOAD(planet_position + "/RARESpeckle")
+	80 sum = sum + LOAD(planet_position + "/RAREClouds")
+	90 sum = sum + LOAD(planet_position + "/RARELightColor")
+	
+	RETURN sum
+
+End Function
 
 
 /* Owner & Administrative Functions */
@@ -95,7 +124,6 @@ Function AdminTransferOwnership(new_admin String) Uint64
 End Function
 	
 	
-// until the new owner claims ownership, existing owner remains owner
 Function AdminClaimOwnership() Uint64 
 
 	10  IF ADDRESS_RAW(LOAD("swap")) == ADDRESS_RAW(SIGNER()) THEN GOTO 20 
@@ -107,53 +135,69 @@ Function AdminClaimOwnership() Uint64
 End Function
 	
 	
-// if signer is owner, withdraw any requested funds
-// if everthing is okay, thety will be showing in signers wallet
-Function AdminWithdraw(amount Uint64) Uint64 
+Function AdminWithdraw() Uint64 
 
 	10  IF ADDRESS_RAW(LOAD("admin")) == ADDRESS_RAW(SIGNER()) THEN GOTO 20 
 	11  RETURN 1
 	
-	20  SEND_DERO_TO_ADDRESS(SIGNER(), amount)
+	20  SEND_DERO_TO_ADDRESS(SIGNER(), LOAD('balance_dev_fee'))
 	21  RETURN 0
 	
 End Function
 
+
+Function AdminSetVariable(variable String, new_value Uint64) Uint64 
+
+	10  IF ADDRESS_RAW(LOAD("admin")) == ADDRESS_RAW(SIGNER()) THEN GOTO 20 
+	11  RETURN 1
+	
+	20  IF EXISTS("variable_" + variable) == 1 THEN GOTO 30
+	21 	RETURN 1
+	
+	30  STORE("variable_" + variable, new_value)
+	31  RETURN 0
+	
+End Function
 
 /* Contract Core Functions */
 
 Function GalaxyEmperorReset() Uint64 
 
 	//If current block higher then offset relese current galaxy emperor and reset back to 0:0
-
-	999  RETURN 0
+	// TODO
+	
+	999 RETURN Info("(GalaxyEmperorReset) Successfully Executed")
 End Function
 
 
 Function GalaxyEmperorOverbid() Uint64 
 
+	01 GalaxyEmperorReset(); // Reset Galaxy Emperror State
+	
 
-	999  RETURN 0
+	999 RETURN Info("(GalaxyEmperorOverbid) Successfully Executed")
 End Function
 
 
 Function SectorSetMoto() Uint64 
 
 
-	999  RETURN 0
+	999 RETURN Info("(SectorSetMoto) Successfully Executed")
 End Function
 
 
 Function UserSetAlias(new_name String) Uint64 
 
 	
-	999  RETURN 0
+	999 RETURN Info("(UserSetAlias) Successfully Executed")
 End Function
 
 
 Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64) Uint64
 
-	// >= 0 && <= 10000000000000000000 (positions of x, y)
+	01 GalaxyEmperorReset(); // Reset Galaxy Emperror State
+
+	// >= 0 && <= 1000000000000000 (positions of x, y)
 	// 00 01 02 03 04 05 06 07 [08] 09 10 11 12 13 14 15 16 (positions of z)
 	
 	// Initialize user stack if its his 1st platform
@@ -234,15 +278,16 @@ Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64) 
 	*/
 	
 	40 DIM planet_position as String
-	41 LET planet_position = position_x+":"+position_y+":"+position_z
+	41 LET planet_position = "" + position_x + ":" + position_y + ":" + position_z
 	
 	// Check if slot is free
-	42 IF EXISTS(planet_position + "/Owner") == 0 THEN GOTO 50
-	43 RETURN 1
+	50 IF EXISTS(planet_position + "/Owner") == 0 THEN GOTO 60
+	51 IF LOAD(planet_position + "/Owner") == "" THEN GOTO 60
+	52 RETURN 1
 	
 	// All checkup passed now we can generate planet
 	
-	50 PRINTF "Start Generation"
+	60 PRINTF " --- Start Generation --- "
 	
 	94  STORE(planet_position + "/Mass", 			100 + RANDOM(1000))
 	95  STORE(planet_position + "/Population", 		1000000 + RANDOM(10000000000))
@@ -317,40 +362,106 @@ Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64) 
 	150 STORE(planet_position + "/vAngle", 			0 + RANDOM( 60 + 1) )
 	151 STORE(planet_position + "/vRotspeed", 		0 + RANDOM( 20 + 1) )
 	
+	// 152 STORE(planet_position + "/index_in_stack", 	stack_index )
+	152 STORE(planet_position + "/txid", 			TXID() )
+	153 STORE(planet_position + "/planet_position", planet_position )
+	154 STORE(planet_position + "/card_power", 		CalculateCardPower(planet_position) )
+	
 	200 STORE(user+"_index_"+stack_index, planet_position)
 	201 STORE(user+"_index", stack_index + 1)
 	
 	202 STORE("stats_planet_counter", LOAD("stats_planet_counter") + 1)
 	
-	300 RETURN 0
 	
+	999 RETURN Info("(PlanetAcquire) Successfully Executed")
 End Function
 
 /*
 Function PlanetMerge(planet1_x Uint64, planet1_y Uint64, planet1_z Uint64, planet2_x Uint64, planet2_y Uint64, planet2_z Uint64)
 
+	01 GalaxyEmperorReset(); // Reset Galaxy Emperror State
+
+	10 IF EXISTS("["+position_x+":"+position_y+":"+position_z+"]/Owner") == 1 THEN GOTO 20
+	11 RETURN Error("Unpermited Action. Planet does not exist.")
+	
+	20 IF ADDRESS_RAW(LOAD("["+position_x+":"+position_y+":"+position_z+"]/Owner")) == ADDRESS_RAW(SIGNER()) THEN GOTO 30
+	21 RETURN Error("Unpermited Action. Planet does not belong to you.")
+	
+	30 IF EXISTS("["+position_x+":"+position_y+":"+position_z+"]/Owner") == 1 THEN GOTO 40
+	31 RETURN Error("Unpermited Action. Planet does not exist.")
+	
+	40 IF ADDRESS_RAW(LOAD("["+position_x+":"+position_y+":"+position_z+"]/Owner")) == ADDRESS_RAW(SIGNER()) THEN GOTO 50
+	41 RETURN Error("Unpermited Action. Planet does not belong to you.")
+
+	50 PRINTF " --- "
+	
+	40 DIM planet1_position, planet2_position as String
+	41 LET planet1_position = "" + planet1_x + ":" + planet1_y + ":" + planet1_z
+	42 LET planet2_position = "" + planet2_x + ":" + planet2_y + ":" + planet2_z
+	
+	100 STORE(planet2_position + "/Owner", "")
+	202 STORE("stats_planet_counter", LOAD("stats_planet_counter") - 1)
+	
+	999 RETURN Info("(PlanetMerge) Successfully Executed")
 End Function
 
 
-Function PlanetSetNote(position_x Uint64, position_y Uint64, position_z Uint64, note String) Uint64
+Function PlanetSetDesc(position_x Uint64, position_y Uint64, position_z Uint64, name String, moto String) Uint64
 
-	10 IF EXISTS("["+position_x+":"+position_y+":"+position_z+"] - Owner") == 1 THEN GOTO 20
-	
-	
-	11 IF ADDRESS_RAW(LOAD("["+position_x+":"+position_y+":"+position_z+"] - Owner")) == ADDRESS_RAW(SIGNER()) THEN GOTO
-	
-	
-	100 STORE("["+position_x+":"+position_y+":"+position_z+"] - Note", note)
+	01 GalaxyEmperorReset(); // Reset Galaxy Emperror State
 
+	10 IF EXISTS("["+position_x+":"+position_y+":"+position_z+"]/Owner") == 1 THEN GOTO 20
+	11 RETURN Error("Unpermited Action. Planet does not exist.")
+	
+	20 IF ADDRESS_RAW(LOAD("["+position_x+":"+position_y+":"+position_z+"]/Owner")) == ADDRESS_RAW(SIGNER()) THEN GOTO 30
+	21 RETURN Error("Unpermited Action. Planet does not belong to you.")
+	
+	30 PRINTF " --- "
+	
+	100 STORE("["+position_x+":"+position_y+":"+position_z+"]/Name", name)
+	101 STORE("["+position_x+":"+position_y+":"+position_z+"]/Moto", moto)
+
+	
+	999 RETURN Info("(PlanetSetDesc) Successfully Executed")
 End Function
 
 
-Function PlanetSellOut()
+Function PlanetSellOut(position_x Uint64, position_y Uint64, position_z Uint64, price Uint64) Uint64
 
+	10 IF EXISTS("["+position_x+":"+position_y+":"+position_z+"]/Owner") == 1 THEN GOTO 20
+	11 RETURN Error("Unpermited Action. Planet does not exist.")
+	
+	20 IF ADDRESS_RAW(LOAD("["+position_x+":"+position_y+":"+position_z+"]/Owner")) == ADDRESS_RAW(SIGNER()) THEN GOTO 30
+	21 RETURN Error("Unpermited Action. Planet does not belong to you.")
+	
+	30 PRINTF " --- "
+
+	100 STORE("["+position_x+":"+position_y+":"+position_z+"]/OnSell", price)
+
+	
+	999 RETURN Info("(PlanetSellOut) Successfully Executed")
 End Function
 
 
-Function PlanetBuyIn()
+Function PlanetBuyIn(position_x Uint64, position_y Uint64, position_z Uint64, value Uint64) Uint64
 
+	10 IF EXISTS("["+position_x+":"+position_y+":"+position_z+"]/Owner") == 1 THEN GOTO 20
+	11 RETURN Error("Unpermited Action. Planet does not exist.")
+	
+	20 IF value > 0 THEN GOTO 30 // To bypass 0 OnSell value, wich corresponds to not being set on sale
+	21 RETURN Error("Unpermited Action. Value should be positive.")
+	
+	30 IF( value >= LOAD("["+position_x+":"+position_y+":"+position_z+"]/OnSell") ) THEN GOTO 40
+	31 RETURN Error("Unpermited Action. Card price is higher then youve payed.")
+	
+	40 PRINTF " --- "
+
+	100 STORE("["+position_x+":"+position_y+":"+position_z+"]/Owner", SIGNER())
+	101 STORE("["+position_x+":"+position_y+":"+position_z+"]/OnSell", 0)
+	
+	// TODO: Find and remove card from previous owner stack list
+	
+	
+	999 RETURN Info("(PlanetSellOut) Successfully Executed")
 End Function
 */

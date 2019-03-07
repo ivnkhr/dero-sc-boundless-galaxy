@@ -52,7 +52,8 @@ function initPlanet(ctx,wh,setoff){
   var setoff = setoff;
 
   var canvas = document.getElementById(ctx);
-  console.log('Find canvas context', canvas);
+  if( canvas === null ) return 0;
+  // console.log('Find canvas context', canvas);
   //canvas.width=wh;
   //canvas.height=wh;
   //canvas.width=80;
@@ -266,7 +267,7 @@ function initPlanet(ctx,wh,setoff){
   	*/
   	
   	//logs
-    
+    /*
   	console.log(
   		RARECloudiness,
   		RARECold,
@@ -278,7 +279,7 @@ function initPlanet(ctx,wh,setoff){
   		RAREClouds,
   		RARELightColor,
   	);
-
+    */
   	sum = RARECloudiness + RARECold + RAREOcean + RARETemperate + RAREWarm + RAREHot + RARESpeckle + RAREClouds + RARELightColor;
   	
   	//console.log('common');
@@ -290,13 +291,13 @@ function initPlanet(ctx,wh,setoff){
       RAREHaze = 0;
     }
   		
-  	if(sum>=5)
+  	// if(sum>=5)
   		//console.log('!!legendary');
   		
-  	if(sum>=3)
+  	// if(sum>=3)
   		//console.log('!rare');
 
-    console.log('inset', setoff);
+    // console.log('Init', setoff);
 
   	range = setoff.vWaterLevel; // -2;2 (0-4)
   	vWaterLevel = (range-20)/10;

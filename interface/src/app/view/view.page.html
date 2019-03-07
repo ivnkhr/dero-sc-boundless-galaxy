@@ -6,8 +6,7 @@
     <ion-title color="light">Sector [{{x}}:{{y}}]</ion-title>
     <ion-buttons slot="end">
       <ion-button fill="solid" (click)="updateView()">
-        <ion-icon name="refresh-circle"></ion-icon>
-        Resresh Sector State
+        <ion-icon slot="start" name="refresh-circle"></ion-icon> Resresh Sector State
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -18,8 +17,18 @@
 
   
   <div class="local">
-    
-    
+    <!--
+    <div id="no_renderer" class="no-render">
+      <canvas class="cis" id="planetFocus0"></canvas>
+      <canvas class="cis" id="planetFocus1"></canvas>
+      <canvas class="cis" id="planetFocus2"></canvas>
+      <canvas class="cis" id="planetFocus3"></canvas>
+      <canvas class="cis" id="planetFocus4"></canvas>
+      <canvas class="cis" id="planetFocus5"></canvas>
+      <canvas class="cis" id="planetFocus6"></canvas>
+    </div>
+    -->
+
     
     <div class="solar-system">
       <div class="sun"></div>
@@ -32,13 +41,23 @@
       </div>
     </div>
     
+    <div class="planet-moto">
+      <div class="desc">MOTO</div> 
+      <ion-button fill="solid" size="small" color="success" expand="block" (click)="this.rootApp.setMoto(x, y)">
+        <ion-icon slot="start" name="information-circle"></ion-icon> Set Sector Moto
+      </ion-button>
+      <ion-button fill="solid" size="small" color="success" expand="block" (click)="this.rootApp.setGalaxyEmperor(x, y)">
+        <ion-icon slot="start" name="compass"></ion-icon> Became Galaxy Emperor
+      </ion-button>
+    </div>
+    
     <div class="planet-list">
       <div *ngFor="let planet of items?.reverse(); index as i;" class="ringRarity{{(dataArray[planet])?dataArray[planet].vRarityRate:0}}" [ngClass]="{'hover': hover==planet, 'lock': lock==planet}" (mouseenter) ="mouseEnter(planet)"  (mouseleave) ="mouseLeave(planet)" (click)="mouseClick(planet)">
         {{i+1}}. {{(dataArray[planet])?dataArray[planet].Name:'- free -'}}
       </div>
     </div>
     
-    <div class="planet-card cardRarity{{(planet_focus)?planet_focus.vRarityRate:-1}} cardlock{{lock}}">
+    <div [hidden]="!(this.hover!=-1||this.lock>-1)" class="planet-card cardRarity{{(planet_focus)?planet_focus.vRarityRate:-1}} cardlock{{lock}}">
       
       <table class="heared-card">
         <tr>
@@ -47,7 +66,7 @@
           </td>
           <td align="right">
             <b *ngIf="!planet_focus">FREE SPACE <span *ngIf="lock!==-1">[{{x}}:{{y}}:{{7-lock}}]</span></b>
-            <b *ngIf="planet_focus" title="Absolute Rarity: {{planet_focus.vRarityAbsolute}}%">
+            <b *ngIf="planet_focus" title="Card Power: {{planet_focus.vRarityAbsolute}}%">
               <span *ngIf="planet_focus.vRarityRate==0">Common</span>
               <span *ngIf="planet_focus.vRarityRate==1">Rare</span>
               <span *ngIf="planet_focus.vRarityRate==2">Legendary</span>
@@ -56,39 +75,59 @@
           </td>
         </tr>
       </table>
+
+      <div id="planet_renderer" class="render_{{(lock>=0 && planet_focus)?lock:((planet_focus)?hover:-1)}}">
+        <canvas class="cis" id="planetFocus0"></canvas>
+        <canvas class="cis" id="planetFocus1"></canvas>
+        <canvas class="cis" id="planetFocus2"></canvas>
+        <canvas class="cis" id="planetFocus3"></canvas>
+        <canvas class="cis" id="planetFocus4"></canvas>
+        <canvas class="cis" id="planetFocus5"></canvas>
+        <canvas class="cis" id="planetFocus6"></canvas>
+      </div>
       
-      <canvas class="cis" id="planetFocus" [hidden]="!planet_focus"></canvas>
-      
-      <!--
-      <br/>
-      {{lock}}
-      {{hover}}
-      {{planet_focus}}
-      <br/>
-      -->
       <br/>
       
       <div *ngIf="planet_focus">
-        <br/>
-        <b>{{planet_focus.Name}}</b>
+        
+        <b>{{planet_focus.Name}}</b><br/>
+        <span class="owned-by" title="{{planet_focus.Owner}}">owned by <u class="owner" (click)="rootApp.view_owner(planet_focus.Owner)">{{rootApp.display_nickname(planet_focus.Owner)}}</u></span>
         <br/>
         <br/>
         <div class="desc" [innerHTML]="planet_focus.Moto">
           ...
         </div>
+        <br/>
       </div>
       
-      <ion-button fill="solid" size="large" color="warning" [hidden]="!planet_focus" expand="block" (click)="rebuy(lock)">
-        <ion-icon name="pricetag"></ion-icon>
-        On Sell (1 DERO)
+      <ion-button fill="solid" size="large" color="warning" *ngIf="planet_focus && !planet_focus.Owned && planet_focus.OnSale" expand="block" (click)="rebuy(lock)">
+        <ion-icon slot="start" name="cart"></ion-icon> Buy Card (1 DERO)
       </ion-button>
       
-      <ion-button fill="solid" size="large" color="success" [hidden]="planet_focus" expand="block" (click)="colonize(lock)">
-        <ion-icon name="rocket"></ion-icon>
-        Colonize (1 DERO)
+      <ion-button fill="solid" size="large" color="success" *ngIf="!planet_focus" expand="block" (click)="colonize(lock)">
+        <ion-icon slot="start" name="rocket"></ion-icon> Colonize Slot (1 DERO)
       </ion-button>
       
+      <ion-button fill="solid" size="small" color="success" *ngIf="planet_focus && planet_focus.Owned" expand="block" (click)="this.rootApp.editPlanet()">
+        <ion-icon slot="start" name="color-wand"></ion-icon> Change Description
+      </ion-button>
+
+      <ion-button fill="solid" size="small" color="tertiary" *ngIf="planet_focus && planet_focus.Owned" expand="block" (click)="this.rootApp.enchant_card(planet_focus.planet_position)">
+        <ion-icon slot="start" name="flask"></ion-icon> Enchance Card
+      </ion-button>
+
+      <ion-button fill="solid" size="small" color="warning" *ngIf="planet_focus && planet_focus.Owned" expand="block" (click)="this.rootApp.editPlanet()">
+        <ion-icon slot="start" name="wallet"></ion-icon> Put On Sell
+      </ion-button>
+        
     </div>
     
   </div>
+  
+  <div *ngFor="let planet of items">
+    <div *ngIf="(dataArray[planet] && dataArray[planet].vRarityRate>=0)" class="planet_tip tip_{{planet}} rarity_{{dataArray[planet].vRarityRate}}">
+      {{(dataArray[planet])?dataArray[planet].Name:'- free -'}}
+    </div>
+  </div>
+  
 </ion-content>

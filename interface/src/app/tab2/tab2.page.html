@@ -7,8 +7,7 @@
       <ion-input color="warning" placeholder="x" [(ngModel)]="cy" maxlength=4 min=-999 max=999 size=2 type=number></ion-input>
       <ion-input color="warning" placeholder="y" [(ngModel)]="cx" maxlength=4 min=-999 max=999 size=2 type=number></ion-input>
       <ion-button fill="solid" (click)="jumpTo()">
-        <ion-icon name="share-alt"></ion-icon>
-        Jump
+        <ion-icon slot="start" name="share-alt"></ion-icon> Jump
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -21,7 +20,7 @@
     <ion-grid>
       <ion-row *ngFor="let row of items">
         <ion-col *ngFor="let col of items">
-          <div class="sector" routerLink="/app/galaxy/view/{{col+1-5+(y*8)}}/{{row+1-5+(x*8)}}" class="{{ (dataArray[row*9+col] && dataArray[row*9+col]>=0)?'explored':'nonExplored' }}">
+          <div class="sector" routerLink="/app/galaxy/view/{{col+1-5+(y*8)}}/{{row+1-5+(x*8)}}" class="{{ (dataArray[row*9+col]!==null && dataArray[row*9+col]>=0)?'explored':'nonExplored' }}">
             
             
             Sector<br/>
