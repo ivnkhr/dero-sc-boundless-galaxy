@@ -96,7 +96,7 @@ export class TabposessionsPage implements OnInit, AfterViewInit, OnDestroy {
 */
   public myHeaderFn(record, recordIndex, records) {
     if (recordIndex % 10 === 0) {
-      return 'Showing records: ' + ( recordIndex + 1 ) + ' - ' + ( recordIndex + 1 ) * 10;
+      return 'Showing records: ' + ( parseInt(recordIndex, 10) + 1 ) + ' - ' + (( parseInt(recordIndex, 10) ) + 10);
     }
     // initPlanet('planetFocus' + record.i, 140, record);
     return null;

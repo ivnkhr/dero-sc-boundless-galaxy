@@ -57,35 +57,36 @@ Function Initialize() Uint64
 	
 	// Galaxy center is
 	
-	10 STORE("admin", SIGNER()) // store in DB  ["owner"] = address
+	01 STORE("admin", SIGNER()) // store in DB  ["owner"] = address
 	
+	10 STORE("stats_excelent_cards", 0)
 	11 STORE("stats_planet_counter", 0)
 	
-	12 STORE("variable_colonize_fee", 				1.00 * 1000000000000) 		// 1 DERO
-	13 STORE("variable_sector_moto_fee", 			0.50 * 1000000000000)		// 1 DERO
-	14 STORE("variable_nickname_fee", 				0.025 * 1000000000000)	 	// 1 DERO
+	12 STORE("variable_colonize_fee", 				1 * 1000000000000) 		// 1 DERO
+	13 STORE("variable_sector_moto_fee", 			1 * 500000000000)		// 1 DERO
+	14 STORE("variable_nickname_fee", 				1 * 25000000000)	 	// 1 DERO
 	15 STORE("variable_emperor_discount_per_topo",	(1000000000000 / 2) * 7200) // ~7200 blocks(topos) per day = (1000000000000 / 2) * 7200) half a dero per day
 	16 STORE("variable_dev_fee",					5)							// 5% goes to the dev fee
 	
-	14 STORE("galaxy_center", "" + (1000000000000000/2) + ":" + (1000000000000000/2))
+	17 STORE("galaxy_center", "" + (1000000000000000/2) + ":" + (1000000000000000/2))
 	
-	16 STORE("emperor_bid", 0)
-	16 STORE("emperor_last_check_topo", 0)
-	17 STORE("emperor_user", "")
+	18 STORE("emperor_bid", 0)
+	19 STORE("emperor_last_check_topo", 0)
+	20 STORE("emperor_user", "")
 	
-	18 STORE("balance_dev_fee", 0)
-	19 STORE("balance_shared_pool", 0)
+	21 STORE("balance_dev_fee", 0)
+	22 STORE("balance_shared_pool", 0)
 	
-	20 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 0)
-	21 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 1)
-	22 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 2)
-	23 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 3)
-	24 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 4)
-	25 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 5)
-	26 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 6)
+	40 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 0)
+	41 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 1)
+	42 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 2)
+	43 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 3)
+	44 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 4)
+	45 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 5)
+	46 PlanetAcquire(1000000000000000/2, 1000000000000000/2, 6)
 	
-	27 PlanetAcquire(1000000000000000/2-1, 1000000000000000/2, 5)
-	28 PlanetAcquire(1000000000000000/2-1, 1000000000000000/2, 6)
+	47 PlanetAcquire(1000000000000000/2-1, 1000000000000000/2, 5)
+	48 PlanetAcquire(1000000000000000/2-1, 1000000000000000/2, 6)
 	
 	999 RETURN Info("Contract Successfully Deployed")
 End Function 
@@ -93,21 +94,34 @@ End Function
 
 Function CalculateCardPower(planet_position String) Uint64
 
-	DIM sum as Uint64
-	LET sum = 0
+	01 DIM sum as Uint64
+	02 LET sum = 0
 	
-	10 sum = sum + LOAD(planet_position + "/RARECloudiness")
-	20 sum = sum + LOAD(planet_position + "/RARECold")
-	30 sum = sum + LOAD(planet_position + "/RAREOcean")
-	40 sum = sum + LOAD(planet_position + "/RARETemperate")
-	50 sum = sum + LOAD(planet_position + "/RAREWarm")
-	60 sum = sum + LOAD(planet_position + "/RAREHot")
-	70 sum = sum + LOAD(planet_position + "/RARESpeckle")
-	80 sum = sum + LOAD(planet_position + "/RAREClouds")
-	90 sum = sum + LOAD(planet_position + "/RARELightColor")
+	10 LET sum = sum + LOAD(planet_position + "/RARECloudiness")
+	20 LET sum = sum + LOAD(planet_position + "/RARECold")
+	30 LET sum = sum + LOAD(planet_position + "/RAREOcean")
+	40 LET sum = sum + LOAD(planet_position + "/RARETemperate")
+	50 LET sum = sum + LOAD(planet_position + "/RAREWarm")
+	60 LET sum = sum + LOAD(planet_position + "/RAREHot")
+	70 LET sum = sum + LOAD(planet_position + "/RARESpeckle")
+	80 LET sum = sum + LOAD(planet_position + "/RAREClouds")
+	90 LET sum = sum + LOAD(planet_position + "/RARELightColor")
 	
-	RETURN sum
+	999 RETURN sum
+End Function
 
+
+Function StoreSharedPool(value Uint64) Uint64
+	
+	10 DIM dev_fee, shared_pool as Uint64
+	
+	11 LET dev_fee = (value * LOAD('variable_dev_fee')) / 100
+	12 LET shared_pool = value - dev_fee
+	
+	13 STORE("balance_dev_fee", LOAD("balance_dev_fee")+dev_fee)
+	14 STORE("balance_shared_pool", LOAD("balance_shared_pool")+shared_pool)
+	
+	999 RETURN 0
 End Function
 
 
@@ -170,30 +184,35 @@ Function GalaxyEmperorReset() Uint64
 End Function
 
 
-Function GalaxyEmperorOverbid() Uint64 
+Function GalaxyEmperorOverbid(value Uint64) Uint64 
 
 	01 GalaxyEmperorReset(); // Reset Galaxy Emperror State
 	
-
+	998 StoreSharedPool(value)
 	999 RETURN Info("(GalaxyEmperorOverbid) Successfully Executed")
 End Function
 
 
-Function SectorSetMoto() Uint64 
+Function SectorSetMoto(sector_x Uint64, sector_y Uint64, moto String, value Uint64) Uint64 
 
+	10 IF value >= LOAD("variable_sector_moto_fee")
+	10 STORE("moto_"+sector_x+":"+sector_y, moto)
 
+	
+	998 StoreSharedPool(value)
 	999 RETURN Info("(SectorSetMoto) Successfully Executed")
 End Function
 
 
 Function UserSetAlias(new_name String) Uint64 
 
+	10 STORE(SIGNER()+"_nick", new_name)
 	
 	999 RETURN Info("(UserSetAlias) Successfully Executed")
 End Function
 
 
-Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64) Uint64
+Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64, value Uint64) Uint64
 
 	01 GalaxyEmperorReset(); // Reset Galaxy Emperror State
 
@@ -366,6 +385,10 @@ Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64) 
 	152 STORE(planet_position + "/txid", 			TXID() )
 	153 STORE(planet_position + "/planet_position", planet_position )
 	154 STORE(planet_position + "/card_power", 		CalculateCardPower(planet_position) )
+	155 STORE(planet_position + "/created_at", 		BLOCK_TOPOHEIGHT() )
+	
+	180 IF LOAD(planet_position + "/card_power") < 95 THEN GOTO 200
+	181 STORE("stats_excelent_cards", LOAD("stats_excelent_cards") + 1)
 	
 	200 STORE(user+"_index_"+stack_index, planet_position)
 	201 STORE(user+"_index", stack_index + 1)
@@ -373,6 +396,7 @@ Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64) 
 	202 STORE("stats_planet_counter", LOAD("stats_planet_counter") + 1)
 	
 	
+	998 StoreSharedPool(value)
 	999 RETURN Info("(PlanetAcquire) Successfully Executed")
 End Function
 
@@ -460,7 +484,6 @@ Function PlanetBuyIn(position_x Uint64, position_y Uint64, position_z Uint64, va
 	101 STORE("["+position_x+":"+position_y+":"+position_z+"]/OnSell", 0)
 	
 	// TODO: Find and remove card from previous owner stack list
-	
 	
 	999 RETURN Info("(PlanetSellOut) Successfully Executed")
 End Function

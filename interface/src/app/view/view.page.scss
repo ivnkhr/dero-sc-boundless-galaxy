@@ -121,8 +121,19 @@ $color-common: white;
   color: #ccc;
 }
 
+@keyframes tipfade { 
+  0% { opacity: 0; } 
+  90% { opacity: 0; } 
+  100% { opacity: 1; } 
+}
+
 .planet_tip{
   // background-color: rgba(20, 20, 20, 0.4);
+  animation-iteration-count:1;
+  animation-timing-function:ease;
+  animation-name:tipfade;
+  animation-duration: 5s;
+  
   color: white;
   font-size: 11px;
   top: 50%;
@@ -154,7 +165,7 @@ $color-common: white;
   }
 }
 
-.planet-list, .planet-card, .planet-moto{
+.planet-list, .planet-card, .planet-moto, .planet-chat{
   z-index: 4;
   .heared-card{
     width: 100%;
@@ -189,6 +200,20 @@ $color-common: white;
 
 .owner{
   cursor: pointer;
+}
+
+.click{
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.planet-chat{
+  width: 400px;
+  position: absolute;
+  top: auto;
+  bottom: 15px;
+  left: 15px;
+  right: auto;
 }
 
 .planet-moto{

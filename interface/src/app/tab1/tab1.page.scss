@@ -4,3 +4,21 @@
   max-height: 15vh;
   overflow: hidden;
 }
+
+.welcome b{
+  font-size: 18px;
+  display: block;
+  border-bottom: 1px solid #eee;
+}
+
+.item{
+  padding: 5px;
+  span{
+    font-weight: bold;
+  }
+}
+
+.click{
+  cursor: pointer;
+  text-decoration: underline;
+}

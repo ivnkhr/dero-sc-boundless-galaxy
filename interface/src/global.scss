@@ -10,6 +10,19 @@
 @import '~@ionic/angular/css/text-transformation.css';
 @import '~@ionic/angular/css/flex-utils.css';
 
+.warning{
+  --ion-color-primary: #9e9e10;
+}
+
+.toastdark{
+  --width: 90%;
+  --max-width: 90%;
+  --min-width: 90%;
+  --border-color: green;
+  --border-style: solid;
+  --border-width: 1px;
+}
+
 :root{
 
   ion-toolbar{

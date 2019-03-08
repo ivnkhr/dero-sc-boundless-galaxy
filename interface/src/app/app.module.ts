@@ -11,6 +11,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 
+
 import { ModalExample } from '../modal/modal.page';
 // import { PlanetrendererComponent } from './planetrenderer/planetrenderer.component';
 import { AngularFireModule } from '@angular/fire';

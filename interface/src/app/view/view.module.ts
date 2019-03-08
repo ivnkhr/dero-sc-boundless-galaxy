@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
-
+import { NgPipesModule } from 'ngx-pipes';
 import { IonicModule } from '@ionic/angular';
 
 import { ViewPage } from './view.page';
@@ -19,6 +19,7 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
+    NgPipesModule,
     RouterModule.forChild(routes)
   ],
   declarations: [ViewPage]

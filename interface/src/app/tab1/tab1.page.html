@@ -1,10 +1,10 @@
 <ion-header>
   <ion-toolbar>
     <ion-title color="light">
-      Welcome Here
+      Boundless Galaxy
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="solid" (click)="rootApp.ping_daemon()">
+      <ion-button fill="solid" (click)="refreshScreen()">
         <ion-icon slot="start" name="refresh-circle"></ion-icon> Refresh Game State
       </ion-button>
     </ion-buttons>
@@ -19,72 +19,105 @@
         
         <ion-card color="light" class="welcome">
           <ion-card-content>
-            server stats
-          </ion-card-content>
-        </ion-card>
-        
-      </ion-col>
-      <ion-col>
-        
-        <ion-card color="light" class="welcome">
-          <ion-card-content>
-            user history
-          </ion-card-content>
-        </ion-card>
-        
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col>
-        
-        <ion-card color="light" class="welcome">
-          <ion-card-content>
-            <ul>
-              <li class="text" *ngFor="let item of items | async">
-                {{item | json}}
-              </li>
-            </ul>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <b>Your Profile</b>
+                </ion-col>
+                <ion-col size="3">
+                  <ion-button fill="solid" size="small" color="success" expand="block" (click)="rootApp.setNewName()">
+                    <ion-icon slot="start" name="person"></ion-icon> Update Nickname
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
             
-            <ion-list>
+            
+            <div class="item"><span>Nickname:</span> {{rootApp.display_nickname(rootApp.wallet_address)}}</div>
+            <div class="item"><span>Sectors Scanned:</span> {{values.sectors}}</div>
+            <div class="item"><span>Planets Discovered:</span> {{values.total}}</div>
 
-              <ion-item color="dark">
-                <ion-label position="stacked">
+          </ion-card-content>
+        </ion-card>
+        
+        <ion-card color="light" class="welcome">
+          <ion-card-content>
+            <b>Game Stats</b>
+            <br/>
+            
+            <div class="item"><span>Current Game Pool:</span> {{rootApp.onChain_value(rootApp.settings_laoded.balance_shared_pool)}} DERO</div>
+            <div class="item"><span>Excile Cards (>95% card power, eligable for reward):</span> {{rootApp.settings_laoded.stats_excelent_cards||0}}</div>
+            <div class="item"><span>Total Planets Colonized:</span> {{rootApp.settings_laoded.stats_planet_counter||0}}</div>
+            
+            <!--
+            {{ rootApp.settings_laoded | json }}
+            -->
+          </ion-card-content>
+        </ion-card>
+        
+        <ion-card color="light">
+          <ion-card-content>
+            <iframe width="100%" height="315" src="https://www.youtube.com/embed/-3wagBUybBI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </ion-card-content>
+        </ion-card>
+        
+        <ion-card color="light">
+          <ion-card-content>
+            <b>Game Tutorial</b>
+            <br/>
+            1e2023
+            1e2023
+            1e2023
+          </ion-card-content>
+        </ion-card>
+        
+      </ion-col>
+      <ion-col size="4">
+        
+        <ion-card color="light" class="welcome">
+          <ion-card-content>
                   
-                  <ion-grid>
-                    <ion-row>
-                      <ion-col>
-                        <ion-text color="light">Chatbox</ion-text>
-                      </ion-col>  
-                      <ion-col size="3">
-                        <ion-button fill="solid" size="small" color="success" expand="block" (click)="rootApp.sendMessage()">
-                          <ion-icon slot="start" name="send"></ion-icon> Send
-                        </ion-button>
-                      </ion-col>  
-                    </ion-row>
-                  </ion-grid>
+              <ion-list>
 
-                </ion-label>
-                <ion-input placeholder="Enter your message..." color="light"></ion-input>
-              </ion-item>
+                <ion-item color="dark">
+                  <ion-label position="stacked">
+                    
+                    <ion-grid>
+                      <ion-row>
+                        <ion-col>
+                          <ion-text color="light">Chatbox</ion-text>
+                        </ion-col>  
+                        <ion-col size="3">
+                          <ion-button fill="solid" size="small" color="success" expand="block" (click)="rootApp.sendMessage('general', rootApp.chat_message)">
+                            <ion-icon slot="start" name="send"></ion-icon> Send
+                          </ion-button>
+                        </ion-col>  
+                      </ion-row>
+                    </ion-grid>
 
-              <ion-item *ngFor="let item of items | async">
-                <ion-label text-wrap>
-                  <ion-text color="warning">
-                    <h2>{{rootApp.display_nickname(item.address)}}</h2>
-                  </ion-text>
-                  <ion-text color="light">
-                    <p>Paragraph line 2 secondary</p>
-                  </ion-text>
-                </ion-label>
-              </ion-item>
+                  </ion-label>
+                  <ion-input placeholder="Enter your message..." color="light" [(ngModel)]="rootApp.chat_message"></ion-input>
+                </ion-item>
 
-            </ion-list>
-            
+                <ion-item *ngFor="let item of items | async | reverse">
+                  <ion-label text-wrap>
+                    <ion-text color="warning" class="click">
+                      <h2 (click)="rootApp.view_owner(item.address)">{{rootApp.display_nickname(item.address)}}</h2>
+                    </ion-text>
+                    <ion-text color="light">
+                      <p>{{item.message}}</p>
+                    </ion-text>
+                  </ion-label>
+                </ion-item>
+
+              </ion-list>
+
           </ion-card-content>
         </ion-card>
         
       </ion-col>
     </ion-row>
+
   </ion-grid>
   
 </ion-content>

@@ -43,12 +43,47 @@
     
     <div class="planet-moto">
       <div class="desc">MOTO</div> 
-      <ion-button fill="solid" size="small" color="success" expand="block" (click)="this.rootApp.setMoto(x, y)">
+      <ion-button fill="solid" size="small" color="success" expand="block" (click)="this.rootApp.setSectorMoto(x, y)">
         <ion-icon slot="start" name="information-circle"></ion-icon> Set Sector Moto
       </ion-button>
+      <!--
       <ion-button fill="solid" size="small" color="success" expand="block" (click)="this.rootApp.setGalaxyEmperor(x, y)">
         <ion-icon slot="start" name="compass"></ion-icon> Became Galaxy Emperor
       </ion-button>
+      -->
+    </div>
+    
+    <div class="planet-chat">
+
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            
+            <ion-item *ngFor="let item of messages | async">
+              <ion-label text-wrap>
+                <ion-text color="warning" class="click" (click)="rootApp.view_owner(item.address)">
+                  {{rootApp.display_nickname(item.address)}}
+                </ion-text>
+                <ion-text color="light">
+                  {{item.message}}
+                </ion-text>
+              </ion-label>
+            </ion-item>
+            
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-input placeholder="[Sector {{x}}:{{y}}] Enter your message..." color="light" [(ngModel)]="rootApp.chat_message"></ion-input>
+          </ion-col>  
+          <ion-col size="3">
+            <ion-button fill="solid" size="small" color="success" expand="block" (click)="rootApp.sendMessage(x + ':' + y, rootApp.chat_message)">
+              <ion-icon slot="start" name="send"></ion-icon> Send
+            </ion-button>
+          </ion-col>  
+        </ion-row>
+      </ion-grid>
+      
     </div>
     
     <div class="planet-list">
@@ -101,11 +136,11 @@
       </div>
       
       <ion-button fill="solid" size="large" color="warning" *ngIf="planet_focus && !planet_focus.Owned && planet_focus.OnSale" expand="block" (click)="rebuy(lock)">
-        <ion-icon slot="start" name="cart"></ion-icon> Buy Card (1 DERO)
+        <ion-icon slot="start" name="cart"></ion-icon> Buy Card (X DERO)
       </ion-button>
       
       <ion-button fill="solid" size="large" color="success" *ngIf="!planet_focus" expand="block" (click)="colonize(lock)">
-        <ion-icon slot="start" name="rocket"></ion-icon> Colonize Slot (1 DERO)
+        <ion-icon slot="start" name="rocket"></ion-icon> Colonize Slot ({{this.rootApp.onChain_value(this.rootApp.settings_laoded.variable_colonize_fee)}} DERO)
       </ion-button>
       
       <ion-button fill="solid" size="small" color="success" *ngIf="planet_focus && planet_focus.Owned" expand="block" (click)="this.rootApp.editPlanet()">

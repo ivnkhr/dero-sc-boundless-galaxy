@@ -3,6 +3,8 @@ import { AppComponent, AgentStatus, AgentStatusColors } from '../app.component';
 import { ActivatedRoute } from '@angular/router';
 import { Storage } from '@ionic/storage';
 import { ToastController } from '@ionic/angular';
+import { AngularFireDatabase } from '@angular/fire/database';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-view',
@@ -15,8 +17,11 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     public rootApp: AppComponent,
     private route: ActivatedRoute,
     private storage: Storage,
-    public toastController: ToastController
+    public toastController: ToastController,
+    public db: AngularFireDatabase
   ) {}
+
+  public messages: Observable<any[]>;
 
   public x = 0;
   public y = 0;
@@ -31,6 +36,8 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
   public planet_focus = null;
 
   public data_ready = false;
+
+  public moto = '';
 
   async updateView() {
 
@@ -51,6 +58,7 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
 
       this.x = params.params.x;
       this.y = params.params.y;
+      this.messages = this.db.list(this.x + ':' + this.y, ref => ref.orderByChild('ts').limitToLast(8) ).valueChanges();
 
       drawRandomUni(document.querySelector('.local'), this.x + ':' + this.y);
       this.updateView();
@@ -102,6 +110,18 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     const keys = [];
     for (i = 0; i < 7; i++) {
       this.dataArray[i] = await this.rootApp.getPlanetFromBlockchainXYZ(this.x, this.y, i);
+
+      const res = await this.fetch_contract(
+        ['moto_' + this.rootApp.onChain_position(this.x) + ':' + this.rootApp.onChain_position(this.y)], false, true);
+      if ( res != null ) {
+        try {
+          const contract_keys = res.txs[0].sc_keys;
+          this.moto = ['moto_' + this.rootApp.onChain_position(this.x) + ':' + this.rootApp.onChain_position(this.y)];
+        } catch (err) {
+          // err
+        }
+      }
+
       // console.log(this.dataArray[i]);
     }
 
@@ -129,7 +149,13 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
           toast.present();
         }
 
+        // console.log('Contracts', val);
+        if (val === null) {
+          this.storage.set('sectors_discovered', await this.storage.get('sectors_discovered') + 1);
+        }
+
         this.storage.ready().then(() => {
+
           this.storage.set(this.x + ':' + this.y, i);
           this.storage.get('total_discovered').then(async (value) => {
             // console.log('new', value);
@@ -168,8 +194,8 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     this.rootApp.execute_command('PlanetAcquire', {
       position_x: this.rootApp.onChain_position(this.x),
       position_y: this.rootApp.onChain_position(this.y),
-      position_z: (1 + slot).toString(),
-    }, 10000);
+      position_z: (slot).toString(),
+    }, this.rootApp.settings_laoded.variable_colonize_fee);
   }
 
   focusCard(id) {

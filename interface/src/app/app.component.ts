@@ -8,6 +8,8 @@ import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ModalController } from '@ionic/angular';
 import { ModalExample } from '../modal/modal.page';
+import { AngularFireDatabase } from '@angular/fire/database';
+import { Observable } from 'rxjs';
 const bigInt = require('big-integer');
 
 export enum AgentStatus {
@@ -40,7 +42,8 @@ export class AppComponent {
     public loadingController: LoadingController,
     public toastController: ToastController,
     public alertController: AlertController,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    public db: AngularFireDatabase
   ) {
     this.initializeApp();
   }
@@ -56,9 +59,13 @@ export class AppComponent {
   public wallet_execution_response = null;
   public wallet_address = '';
 
-  public settings_laoded = null;
+  public settings_laoded = {
+    variable_colonize_fee:    '1000000000000',
+    variable_sector_moto_fee: '500000000000', // Default value, may vary
+    variable_nickname_fee:    '25000000000',
+  };
 
-  public contract = 'bd7722265129732e221a34a8cd977d5df84bf12297933fd4f86ccbc44dfb5483';
+  public contract = '74d410b02b7253ce61a6b57d369f22ba495a87786cc7bdd1131f2bfcd4f2fb40';
   public contract_response = null;
   public variables = [''];
   public active_method = null;
@@ -67,7 +74,89 @@ export class AppComponent {
 
   public nicks_list = {};
 
+  public chat_message = '';
+
   public loadingState = null;
+
+  public sendMessage(room, message) {
+    if ( this.chat_message.length > 0 ) {
+      this.db.list(room).push({
+        address: this.wallet_address,
+        message: message,
+        ts: new Date().getTime()
+      });
+      this.chat_message = '';
+    }
+  }
+
+  async setNewName() {
+    const alert = await this.alertController.create({
+      header: 'Provide new Nickname',
+      inputs: [
+        {
+          name: 'new_name',
+          type: 'text',
+          placeholder: 'Enter new name...'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'warning',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Proceed',
+          handler: (ev) => {
+            if ( ev.new_name.length > 0 ) {
+              this.execute_command('UserSetAlias', ev, 0);
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async setSectorMoto(x, y) {
+    const alert = await this.alertController.create({
+      header: 'Provide new Moto for this sector [' + x + ':' + y + ']',
+      inputs: [
+        {
+          name: 'moto',
+          type: 'text',
+          placeholder: 'Enter new moto...'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'warning',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Proceed',
+          handler: (ev) => {
+            if ( ev.moto.length > 0 ) {
+              this.execute_command('SectorSetMoto', {
+                sector_x: this.onChain_position(x),
+                sector_y: this.onChain_position(y),
+                moto: ev.moto
+              }, this.settings_laoded.variable_sector_moto_fee);
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
   async presentLoadingWithOptions(text) {
     this.loadingState = await this.loadingController.create({
       spinner: 'crescent',
@@ -93,7 +182,7 @@ export class AppComponent {
   }
 
   public onChain_value(full_dero) {
-    return full_dero / 100000000000;
+    return full_dero / 1000000000000;
   }
 
   public display_nickname(address) {
@@ -103,10 +192,10 @@ export class AppComponent {
     if ( typeof( this.nicks_list[address] ) !== 'undefined' && this.nicks_list[address] !== '#loading#' ) {
       return '' + this.nicks_list[address];
     } else if ( typeof( this.nicks_list[address] ) !== 'undefined' && this.nicks_list[address] === '#loading#' ) {
-      return 'Unknown';
+      return 'loading...';
     } else {
       this.initNickloadingProcess(address);
-      return 'Unknown';
+      return 'loading...';
     }
   }
 
@@ -118,7 +207,11 @@ export class AppComponent {
     .toPromise()
     .then(responseAfterSuccess => {
       if (responseAfterSuccess && responseAfterSuccess['status'] === 'OK') {
-        setTimeout( () => this.nicks_list[address] = Math.random(), 6000 );
+        // console.log(responseAfterSuccess.txs[0].sc_keys[address + '_nick']);
+        this.nicks_list[address] = responseAfterSuccess.txs[0].sc_keys[address + '_nick'];
+        if (this.nicks_list[address] === '') {
+          this.nicks_list[address] = 'Unknown';
+        }
       }
     });
   }
@@ -357,7 +450,7 @@ export class AppComponent {
         'entrypoint': method,
         'scid': this.contract,
         'params': params,
-        'value': value
+        'value': parseInt(value, 10)
       }
     };
 
@@ -383,18 +476,18 @@ export class AppComponent {
 
     let line = '';
     Object.keys(copm_tx.sc_tx.params).forEach((key) => {
-      line += key + ': ' + copm_tx.sc_tx.params[key] + '<br/>';
+      line += '<b>' + key + '</b>: ' + copm_tx.sc_tx.params[key] + '<br/>';
     });
 
     const alert = await this.alertController.create({
       header: 'Confirm interaction',
       subHeader: 'Buy pressing okay, wallet will execute folowing command:',
-      message: '<b>' + method + (value ? ' (' + this.onChain_value(value) + ' DERO)' : '') + '<b>:<br/>' + line,
+      message: '<b>' + method + (value ? ' (' + this.onChain_value(value) + ' DERO)' : '') + '</b><hr/>' + line,
       buttons: [
         {
           text: 'Cancel',
           role: 'cancel',
-          cssClass: 'secondary',
+          cssClass: 'warning',
           handler: () => {
             console.log('Confirm Cancel');
           }
@@ -450,9 +543,38 @@ export class AppComponent {
   }
 
   public async load_game_settings() {
-    this.settings_laoded = await this.fetch_contract([
-      'admin', 'stats_planet_counter', 'colonize_fee', 'moto_fee', 'galaxy_center', 'galaxy_emperor_fee', 'galaxy_emperor_reset_height'
+
+    const res = await this.fetch_contract([
+      'admin',
+      'stats_excelent_cards',
+      'stats_planet_counter',
+
+      'variable_colonize_fee',
+      'variable_sector_moto_fee',
+      'variable_nickname_fee',
+      'variable_emperor_discount_per_topo',
+      'variable_dev_fee',
+
+      'galaxy_center',
+
+      'emperor_bid',
+      'emperor_last_check_topo',
+      'emperor_user',
+
+      'balance_dev_fee',
+      'balance_shared_pool'
     ]);
+    if ( res != null ) {
+      // Blockchain got an actual data
+      // Parse keys per planet
+      try {
+        const contract_keys = res.txs[0].sc_keys;
+        this.settings_laoded = contract_keys;
+      } catch (err) {
+        console.log('SETTINGS', contract_keys);
+      }
+    }
+
   }
 
   public async fetch_contract(sc_keys, ignore_loading, ignore_error = false) {
@@ -501,6 +623,7 @@ export class AppComponent {
       showCloseButton: true,
       position: pos || 'middle',
       color: color,
+      cssClass: 'toast' + color,
       duration: duration || 6000,
       closeButtonText: 'OK'
     });
