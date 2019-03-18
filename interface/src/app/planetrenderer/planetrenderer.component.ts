@@ -1,5 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 
+declare function initPlanet(ctx: any, wh: any, setoff: any);
+
 @Component({
   selector: 'app-planetrenderer',
   templateUrl: './planetrenderer.component.html',

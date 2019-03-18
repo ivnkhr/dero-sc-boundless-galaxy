@@ -7,7 +7,7 @@ import { NavigationStart, Router, ActivatedRoute } from '@angular/router';
   templateUrl: 'tabposessions.page.html',
   styleUrls: ['tabposessions.page.scss']
 })
-export class TabposessionsPage implements OnInit, AfterViewInit, OnDestroy {
+export class TabposessionsPage implements OnInit, AfterViewInit {
 
   public wallet = '';
   public search_status = 0; // 0 - not searched, 1 - nothing found, 2 - show results
@@ -121,7 +121,8 @@ export class TabposessionsPage implements OnInit, AfterViewInit, OnDestroy {
           this.search_status = 1;
         } else {
           const keys1 = [];
-          for (let i = 0; i < parseInt(contract_keys[this.wallet + '_index'], 10); i++) {
+          let i = 0;
+          for (i = 0; i < parseInt(contract_keys[this.wallet + '_index'], 10); i++) {
             keys1.push(this.wallet + '_index_' + i);
           }
           const res1 = await this.rootApp.fetch_contract(keys1, false);

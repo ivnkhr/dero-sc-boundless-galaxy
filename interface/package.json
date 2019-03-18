@@ -6,14 +6,14 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --base-href /",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "electron-serve": "ng build --watch --prod --output-path=./electron-app/www",
-    "electron-run": "concurrently -k \"ng build --watch --prod --output-path=./electron-app/www\" \"electron ./electron-app\"",
-    "electron-compile": "ng build --output-path=./electron-app/www --prod && electron ./electron-app",
-    "electron-pack": "ng build --output-path=./electron-app/www --prod && electron-packager ./electron-app --arch ia32,x64 --platform win32,linux --out=./raw_builds --overwrite"
+    "electron-serve": "ng build --base-href ./ --watch --aot=false --build-optimizer=false --prod --output-path=./electron-app/www",
+    "electron-run": "concurrently -k \"ng build --base-href ./ --watch --prod --output-path=./electron-app/www\" \"electron ./electron-app\"",
+    "electron-compile": "ng build --base-href ./ --aot=false --build-optimizer=false --output-path=./electron-app/www --prod && electron ./electron-app",
+    "electron-pack": "ng build --base-href ./ --aot=false --build-optimizer=false --output-path=./electron-app/www --prod && electron-packager ./electron-app --arch ia32,x64 --platform win32,linux --out=./raw_builds --overwrite"
   },
   "private": true,
   "dependencies": {

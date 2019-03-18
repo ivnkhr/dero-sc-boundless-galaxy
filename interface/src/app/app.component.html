@@ -1,3 +1,15 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
+  <div class="wallet_n_blockchain_state" title="Refresh" (click)="this.refreshAll()">
+    <div *ngIf="this.wallet_response">
+    Unlocked Balance: <b>{{this.onChain_value(this.wallet_response.result.unlocked_balance||0).toFixed(2)}} DERO</b><br/>
+    </div>
+    <div *ngIf="this.daemon_response">
+    Current Block Height: <b>{{this.daemon_response.result.stableheight||0}}</b><br/>
+    Avarage Block Time: <b>{{this.daemon_response.result.averageblocktime50||0}}s</b>
+    </div>
+    <div *ngIf="!this.wallet_response && !this.daemon_response">
+    Wallet and Daemon are <b>offline</b>
+    </div>
+  </div>
 </ion-app>

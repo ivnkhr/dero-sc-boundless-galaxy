@@ -1,10 +1,13 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { AppComponent, AgentStatus, AgentStatusColors } from '../app.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Storage } from '@ionic/storage';
 import { ToastController } from '@ionic/angular';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { Observable } from 'rxjs';
+
+declare function initPlanet(ctx: any, wh: any, setoff: any);
+declare function drawRandomUni(blendTo: any, uni: any);
 
 @Component({
   selector: 'app-view',
@@ -54,13 +57,13 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
 
     console.log('View Init');
     // this.drawPlanets();
-    await this.route.paramMap.subscribe(params => {
+    await this.route.paramMap.subscribe((params: any) => {
 
       this.x = params.params.x;
       this.y = params.params.y;
       this.messages = this.db.list(this.x + ':' + this.y, ref => ref.orderByChild('ts').limitToLast(8) ).valueChanges();
 
-      drawRandomUni(document.querySelector('.local'), this.x + ':' + this.y);
+      drawRandomUni(document.querySelector('.local') as HTMLElement, this.x + ':' + this.y);
       this.updateView();
       this.update_tip_positions();
     });
@@ -78,14 +81,14 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     try {
       setTimeout( () => {
         // change tip pos
-        for (i = 0; i < 7; i++) {
+        for (let i = 0; i < 7; i++) {
           if ( this.dataArray[i] ) {
             try {
-              const planet_elem = document.querySelector('#c' + i);
+              const planet_elem = document.querySelector('#c' + i) as HTMLElement;
               const x = window.scrollX + planet_elem.getBoundingClientRect().left; // X
               const y = window.scrollY + planet_elem.getBoundingClientRect().top; // Y
               // console.log(x, y);
-              const tip_elem = document.querySelector('.tip_' + i);
+              const tip_elem = document.querySelector('.tip_' + i) as HTMLElement;
               // (10 - Math.random() * 20)
               tip_elem.style.left = x + 45 + (10 - Math.random() * 20) + 'px';
               tip_elem.style.top = y - 10 + (10 - Math.random() * 20) + 'px';
@@ -108,15 +111,15 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     // Fill in dataArray
     // Build nessesary sc_keys
     const keys = [];
-    for (i = 0; i < 7; i++) {
-      this.dataArray[i] = await this.rootApp.getPlanetFromBlockchainXYZ(this.x, this.y, i);
+    for (let ic = 0; ic < 7; ic++) {
+      this.dataArray[ic] = await this.rootApp.getPlanetFromBlockchainXYZ(this.x, this.y, ic);
 
-      const res = await this.fetch_contract(
+      const res = await this.rootApp.fetch_contract(
         ['moto_' + this.rootApp.onChain_position(this.x) + ':' + this.rootApp.onChain_position(this.y)], false, true);
       if ( res != null ) {
         try {
           const contract_keys = res.txs[0].sc_keys;
-          this.moto = ['moto_' + this.rootApp.onChain_position(this.x) + ':' + this.rootApp.onChain_position(this.y)];
+          this.moto = contract_keys['moto_' + this.rootApp.onChain_position(this.x) + ':' + this.rootApp.onChain_position(this.y)];
         } catch (err) {
           // err
         }
@@ -204,7 +207,7 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
     const item = this.dataArray[id];
     if (item !== undefined && item !== null) {
       this.planet_focus = item;
-      // console.log(item);
+      console.log('Focus Card', item);
       try {
         setTimeout( () => {
           /*
@@ -251,7 +254,7 @@ export class ViewPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   mouseClick(div: string) {
-    if ( this.lock === div ) {
+    if ( this.lock === parseInt( div, 10 ) ) {
       this.lock = -1;
       this.planet_focus = null;
       // this.ngOnInit();

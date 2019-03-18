@@ -56,19 +56,45 @@
               Ping
             </ion-button>
             <br/>
+            <div *ngIf="rootApp.wallet_response">
+              <div *ngFor="let item of rootApp.wallet_response.result | keyvalue"><b>{{item.key}}</b>: {{item.value}}</div>
+            </div>
           </ion-card-content>
         </ion-card>
         
         <ion-card color="light">
           <ion-card-header>
-            <ion-card-title>Wallet Address</ion-card-title>
+            <ion-card-title>Authorization</ion-card-title>
           </ion-card-header>
         
           <ion-card-content>
-            <ion-item color="dark">
+            <ion-item color="dark" [hidden]="rootApp.wallet_status==3&&!rootApp.wallet_address">
               <ion-label position="stacked">Current <b>dERo</b> wallet address</ion-label>
+              <!--[disabled]="rootApp.wallet_status==3"-->
               <ion-input [disabled]="rootApp.wallet_status==3" [(ngModel)]="rootApp.wallet_address"></ion-input>
             </ion-item>
+            
+            <b *ngIf="rootApp.wallet_status!==3" style="display: block; text-align: center; padding: 10px;">enter address manualy or authourize</b>
+            
+            <i *ngIf="!rootApp.wallet_address">After <b>Authorize</b> command is executed on blockchain use its tx hash to confirm it for frontend app via <b>Verify Tx</b> button<br/><br/></i>
+            
+            <ion-button fill="solid" color="success" expand="block" *ngIf="!rootApp.wallet_address" (click)="rootApp.auth()">
+              <ion-icon slot="start" name="key"></ion-icon>
+              Authorize
+            </ion-button>
+            
+            <br/>
+            
+            <ion-button fill="solid" color="success" expand="block" *ngIf="!rootApp.wallet_address && ( rootApp.wallet_execution_response || rootApp.wallet_status !== 3 )" (click)="rootApp.auth_verify()">
+              <ion-icon slot="start" name="checkbox-outline"></ion-icon>
+              Verify Tx
+            </ion-button>
+          
+            <ion-button fill="solid" color="danger" expand="block" *ngIf="rootApp.wallet_address" (click)="rootApp.deauth()">
+              <ion-icon slot="start" name="exit"></ion-icon>
+              Logout
+            </ion-button>
+            
           </ion-card-content>
         </ion-card>
         

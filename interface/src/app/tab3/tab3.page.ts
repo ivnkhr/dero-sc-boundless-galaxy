@@ -7,7 +7,7 @@ import { NavigationStart, Router } from '@angular/router';
   templateUrl: 'tab3.page.html',
   styleUrls: ['tab3.page.scss']
 })
-export class Tab3Page implements OnInit, OnDestroy {
+export class Tab3Page {
 
   constructor(
     public rootApp: AppComponent,

@@ -23,6 +23,85 @@
   --border-width: 1px;
 }
 
+.card-power-breakdown-exp{
+  font-size: 11px;
+  color: #ccc;
+  cursor: pointer;
+  &:hover{
+    text-decoration: underline;
+    color: #fff;
+  }
+}
+
+.card-power-breakdown{
+  .itemc{
+    font-size: 12px;
+    text-align: center!important;
+    padding-bottom: 8px;
+  }
+}
+
+.wallet_n_blockchain_state{
+  position: fixed;
+  bottom: 4px;
+  left: 4px;
+  padding: 4px;
+  background-color: rgba(220,220,220,0.75);
+  border: 2px solid black;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;;
+  &:hover{
+    border-color: #b50089;
+    background-color: white;
+  }
+  color: #222;
+  b{
+    color: #000;
+  }
+}
+
+@keyframes rainbow{
+  
+  0%{color: white; border-color: white; text-shadow: 0px 1px 0px blue; }	
+  20%{color: blue; border-color: blue; text-shadow: 0px 1px 0px #ff00eb; }	
+  50%{color: #ff00eb; border-color: #ff00eb; text-shadow: 0px 1px 0px yellow; }	
+  80%{color: yellow; border-color: yellow; text-shadow: 0px 1px 0px white; }
+  100%{color: white; border-color: white; text-shadow: 0px 1px 0px blue; }	
+  
+}
+
+.excile{
+  display: inline;
+  //background-color: #333;
+  border-radius: 4px;
+  animation: rainbow 10s infinite; 
+  padding-left: 5px;
+  padding-right: 5px;
+  font-weight: bold;
+}
+
+.flame{
+  --background: rgb(250,220,220);
+  i{
+    color: red;
+    font-weight: bold;
+  }
+}
+
+.excile-but{
+  margin-top: 4px;
+  margin-bottom: 4px;
+  display: inline-block;
+  border-style: solid;
+  border-width: 3px;
+  padding: 6px;
+  cursor: pointer;
+  &:hover{
+    background-color: rgba(220,220,220,0.35);
+  }
+}
+
 :root{
 
   ion-toolbar{

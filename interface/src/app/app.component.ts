@@ -10,7 +10,7 @@ import { ModalController } from '@ionic/angular';
 import { ModalExample } from '../modal/modal.page';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { Observable } from 'rxjs';
-const bigInt = require('big-integer');
+// const bigInt = require('big-integer');
 
 export enum AgentStatus {
    checking = 1,
@@ -59,13 +59,20 @@ export class AppComponent {
   public wallet_execution_response = null;
   public wallet_address = '';
 
-  public settings_laoded = {
+  public settings_laoded: any = <any>{
     variable_colonize_fee:    '1000000000000',
     variable_sector_moto_fee: '500000000000', // Default value, may vary
-    variable_nickname_fee:    '25000000000',
+    variable_dev_fee:         '5',
+    variable_redeem_offset:   '10',
+    variable_redeem_precent:  '5',
+
+    stats_excelent_cards: '0',
+
+    balance_dev_fee:          '0',
+    balance_shared_pool:      '0'
   };
 
-  public contract = '74d410b02b7253ce61a6b57d369f22ba495a87786cc7bdd1131f2bfcd4f2fb40';
+  public contract = '5231b6a20e58629c3f76554853770fd623b83cf1a0dcd82899fca6f5c5990d98';
   public contract_response = null;
   public variables = [''];
   public active_method = null;
@@ -77,6 +84,7 @@ export class AppComponent {
   public chat_message = '';
 
   public loadingState = null;
+  public block_timer = null;
 
   public sendMessage(room, message) {
     if ( this.chat_message.length > 0 ) {
@@ -87,6 +95,92 @@ export class AppComponent {
       });
       this.chat_message = '';
     }
+  }
+
+  async redeem(planet) {
+    await this.execute_command('PlanetRedeem', {
+      planet_x: planet.x,
+      planet_y: planet.y,
+      planet_z: planet.z,
+    }, 0);
+    console.log(planet, this.daemon_response.result.stableheight, this.settings_laoded.variable_redeem_offset);
+    // planet.next_redeem_at = parseInt(this.daemon_response.result.stableheight, 10)
+    // + parseInt(this.settings_laoded.variable_redeem_offset, 10);
+  }
+
+  async flame(planet1, planet2) {
+
+    const alert = await this.alertController.create({
+      header: 'Enchantment',
+      cssClass: 'flame',
+      message: '<i>Warning !</i>'
+      + '<br/><b>' + planet2.Name + '</b> card will be <i>destroyed</i> and its atributes will empower <b>' + planet1.Name + '</b> card',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'warning',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Proceed',
+          handler: (ev) => {
+
+            this.execute_command('PlanetMerge', {
+              planet1_x: planet1.x,
+              planet1_y: planet1.y,
+              planet1_z: planet1.z,
+              planet2_x: planet2.x,
+              planet2_y: planet2.y,
+              planet2_z: planet2.z,
+            }, 0);
+
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+
+  }
+  // putOnSell
+
+  async putOnSell(planet) {
+    const alert = await this.alertController.create({
+      header: 'Set price for this Card',
+      inputs: [
+        {
+          name: 'price',
+          type: 'number',
+          placeholder: 'Enter new price (in DERO)...'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'warning',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Proceed',
+          handler: (ev) => {
+            if ( ev.price > 0 ) {
+              this.execute_command('PlanetSellOut', {
+                sector_x: planet.x,
+                sector_y: planet.y,
+                sector_z: planet.z,
+                price: ev.price * 1000000000000
+              }, 0);
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   async setNewName() {
@@ -157,10 +251,55 @@ export class AppComponent {
     await alert.present();
   }
 
+  async editPlanet(planet) {
+    const alert = await this.alertController.create({
+      header: 'Provide new Moto for this planet: ' + planet.Name,
+      inputs: [
+        {
+          name: 'name',
+          type: 'text',
+          value: planet.Name,
+          placeholder: 'Enter new planet name...'
+        },
+        {
+          name: 'moto',
+          type: 'text',
+          value: planet.Moto,
+          placeholder: 'Enter new planet description...'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'warning',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Proceed',
+          handler: (ev) => {
+            if ( ev.moto.length > 0 && ev.moto.length > 0 ) {
+              this.execute_command('PlanetSetDesc', {
+                sector_x: planet.x,
+                sector_y: planet.y,
+                sector_z: planet.z,
+                moto: ev.moto,
+                name: ev.name
+              }, 0);
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
   async presentLoadingWithOptions(text) {
     this.loadingState = await this.loadingController.create({
       spinner: 'crescent',
-      duration: 2000,
+      duration: 6000,
       message: text,
       translucent: false,
       // cssClass: 'custom-class custom-loading'
@@ -177,7 +316,7 @@ export class AppComponent {
   }
 
   public onChain_position(pos) {
-    const position = bigInt( '500000000000000' ) .add( parseInt(pos, 10) );
+    const position = ( 500000000000000 ) + ( parseInt(pos, 10) );
     return position;
   }
 
@@ -185,9 +324,45 @@ export class AppComponent {
     return full_dero / 1000000000000;
   }
 
+  public display_avarage_reward() {
+    if ( this.settings_laoded ) {
+      return (
+        (
+          (this.settings_laoded.balance_shared_pool / (this.settings_laoded.stats_excelent_cards + 1)
+        ) * this.settings_laoded.variable_redeem_precent ) / 100
+      );
+    } else {
+      return 'Not Calculated';
+    }
+    // 10 LET reward = ((LOAD("balance_shared_pool") / (LOAD("stats_excelent_cards") + 1) ) * LOAD('variable_redeem_precent')) / 100
+  }
+
+  public display_redeemable_in(planet_focus) {
+    if ( this.daemon_response && this.daemon_response.result && planet_focus ) {
+      // next_redeem_at
+      return parseInt(planet_focus.next_redeem_at, 10) - this.daemon_response.result.stableheight;
+    }
+    return 'Never';
+  }
+
+  public run_block_timer() {
+    try {
+      window.clearInterval(this.block_timer);
+      this.block_timer = window.setInterval( () => {
+        console.log('increment block');
+        this.daemon_response.result.stableheight += 1;
+      }, this.daemon_response.result.averageblocktime50 * 1000 );
+    } catch (err) {
+      // err
+    }
+  }
+
   public display_nickname(address) {
     if ( address == null || typeof( address ) === 'undefined' ) {
       return '';
+    }
+    if ( address === '' ) {
+      return 'Anonymous';
     }
     if ( typeof( this.nicks_list[address] ) !== 'undefined' && this.nicks_list[address] !== '#loading#' ) {
       return '' + this.nicks_list[address];
@@ -208,7 +383,9 @@ export class AppComponent {
     .then(responseAfterSuccess => {
       if (responseAfterSuccess && responseAfterSuccess['status'] === 'OK') {
         // console.log(responseAfterSuccess.txs[0].sc_keys[address + '_nick']);
-        this.nicks_list[address] = responseAfterSuccess.txs[0].sc_keys[address + '_nick'];
+        let responseData: any = <any>{};
+        responseData = responseAfterSuccess;
+        this.nicks_list[address] = responseData.txs[0].sc_keys[address + '_nick'];
         if (this.nicks_list[address] === '') {
           this.nicks_list[address] = 'Unknown';
         }
@@ -317,11 +494,14 @@ export class AppComponent {
     keys.push(planet_pos + '/vAngle');
     keys.push(planet_pos + '/vRotspeed');
 
-    keys.push(planet_pos + '/index_in_stack');
+    // keys.push(planet_pos + '/index_in_stack');
     keys.push(planet_pos + '/txid');
     keys.push(planet_pos + '/planet_position');
+    keys.push(planet_pos + '/card_power');
+    keys.push(planet_pos + '/created_at');
+    keys.push(planet_pos + '/next_redeem_at');
 
-    const setoff = {};
+    const setoff: any = <any>{};
 
     const res = await this.fetch_contract(keys, false, true);
     if ( res != null ) {
@@ -359,6 +539,17 @@ export class AppComponent {
         setoff.RAREClouds = (+setoff.RAREClouds >= 100 ) ? 100 : +setoff.RAREClouds;
         setoff.RARELightColor = (+setoff.RARELightColor >= 100 ) ? 100 : +setoff.RARELightColor;
 
+        setoff.RAREPowers = <any>{};
+        setoff.RAREPowers['RARECloudiness'] = setoff.RARECloudiness;
+        setoff.RAREPowers['RARECold'] = setoff.RARECold;
+        setoff.RAREPowers['RAREOcean'] = setoff.RAREOcean;
+        setoff.RAREPowers['RARETemperate'] = setoff.RARETemperate;
+        setoff.RAREPowers['RAREWarm'] = setoff.RAREWarm;
+        setoff.RAREPowers['RAREHot'] = setoff.RAREHot;
+        setoff.RAREPowers['RARESpeckle'] = setoff.RARESpeckle;
+        setoff.RAREPowers['RAREClouds'] = setoff.RAREClouds;
+        setoff.RAREPowers['RARELightColor'] = setoff.RARELightColor;
+
         const rarity_rate_abs =
         parseInt(setoff.RARECloudiness, 10) +
         parseInt(setoff.RARECold, 10) +
@@ -370,12 +561,12 @@ export class AppComponent {
         parseInt(setoff.RAREClouds, 10) +
         parseInt(setoff.RARELightColor, 10); // +
 
-        setoff.vRarityAbsolute = Math.round(rarity_rate_abs / 9 / 4);
+        setoff.vRarityAbsolute = Math.round(rarity_rate_abs / 9);
         if ( setoff.vRarityAbsolute >= 100 ) {
           setoff.vRarityAbsolute = 100;
         }
 
-        const rarity_chance = 5;
+        const rarity_chance = 1;
         setoff.RARECloudiness = Math.floor( parseInt(setoff.RARECloudiness + rarity_chance /*chance %*/, 10) / 100 );
         setoff.RARECold = Math.floor( parseInt(setoff.RARECold + rarity_chance /*chance %*/, 10) / 100 );
         setoff.RAREOcean = Math.floor( parseInt(setoff.RAREOcean + rarity_chance /*chance %*/, 10) / 100 );
@@ -424,6 +615,12 @@ export class AppComponent {
         if ( rarity_rate >= 3 ) { setoff.vRarityRate = 1; }
         if ( rarity_rate >= 6 ) { setoff.vRarityRate = 2; }
         if ( rarity_rate >= 9 ) { setoff.vRarityRate = 3; }
+
+        // setoff.next_redeem_at
+
+        setoff.x = planet_pos.split(':')[0];
+        setoff.y = planet_pos.split(':')[1];
+        setoff.z = planet_pos.split(':')[2];
 
         // console.log(setoff);
         return JSON.parse(JSON.stringify(setoff));
@@ -493,26 +690,31 @@ export class AppComponent {
           }
         }, {
           text: 'Confirm',
-          handler: () => {
+          handler: async () => {
             // console.log('Confirm Ok');
 
+            const loading = await this.presentLoadingWithOptions('Interacting With Wallet Endpoint');
             this.http.post(this.wallet + '/json_rpc', data, httpOptions)
             .toPromise()
             .then(responseAfterSuccess => {
+              loading.dismiss();
+
               console.log(responseAfterSuccess);
               if ( responseAfterSuccess['error'] ) {
-                this.toast( responseAfterSuccess['error']['message'], 'warning' );
+                this.toast( responseAfterSuccess['error']['message'], 'warning', null, null );
               } else {
                 this.wallet_execution_response = responseAfterSuccess;
                 this.toast(
-                  'Transaction sent to Blockchain. Once its mined press (Refresh Blockchain State) to see results.', 'succsess');
+                  'Transaction sent to Blockchain. Once its mined press (Refresh Blockchain State) to see results.', 'success', null, null);
               }
             })
             .catch(responseAfterError => {
+              loading.dismiss();
+
               this.toast(
                 'Cannot reach wallet endpoint.' +
                 'Make sure youre running your wallet with --rpc-server and settings are correct.' +
-                'You can manualy execute command using snippet below:', 'danger');
+                'You can manualy execute command using snippet below:', 'danger', null, null);
               this.wallet_status = 0;
               this.wallet_execution_response = null;
               // console.log('curl -X POST ' + (this.wallet) + '/json_rpc -H "Content-Type: application/json" -d ' + data);
@@ -551,15 +753,9 @@ export class AppComponent {
 
       'variable_colonize_fee',
       'variable_sector_moto_fee',
-      'variable_nickname_fee',
-      'variable_emperor_discount_per_topo',
       'variable_dev_fee',
-
-      'galaxy_center',
-
-      'emperor_bid',
-      'emperor_last_check_topo',
-      'emperor_user',
+      'variable_redeem_offset',
+      'variable_redeem_precent',
 
       'balance_dev_fee',
       'balance_shared_pool'
@@ -568,16 +764,16 @@ export class AppComponent {
       // Blockchain got an actual data
       // Parse keys per planet
       try {
-        const contract_keys = res.txs[0].sc_keys;
+        const contract_keys: any = res.txs[0].sc_keys;
         this.settings_laoded = contract_keys;
       } catch (err) {
-        console.log('SETTINGS', contract_keys);
+        // console.log('SETTINGS', contract_keys);
       }
     }
 
   }
 
-  public async fetch_contract(sc_keys, ignore_loading, ignore_error = false) {
+  public async fetch_contract(sc_keys, ignore_loading = false, ignore_error = false) {
     console.log('Ping: Contract');
     this.active_method = null;
     const params = {'txs_hashes': [this.contract], 'sc_keys': []};
@@ -586,8 +782,9 @@ export class AppComponent {
     }
     const data = JSON.stringify(params);
 
+    let loading = null;
     if ( ignore_loading === true ) {
-      const loading = await this.presentLoadingWithOptions('Loading Blockchain State');
+      loading = await this.presentLoadingWithOptions('Loading Blockchain State');
     }
 
     // console.log('init');
@@ -599,18 +796,20 @@ export class AppComponent {
       if (subject['status'] === 'OK') {
         this.contract_response = subject;
       } else {
-        this.toast(subject['status'], 'warning');
+        if ( ignore_error === false ) {
+          this.toast(subject['status'], 'warning', null, null);
+        }
         this.contract_response = null;
       }
     })
     .catch(responseAfterError => {
       if ( ignore_error === false ) {
-        this.toast('Cannot reach Daemon endpoint, please verify settings', 'danger');
+        this.toast('Cannot reach Daemon endpoint, please verify settings', 'danger', null, null);
       }
       this.contract_response = null;
     });
 
-    if ( ignore_loading === true ) {
+    if ( ignore_loading === true && loading != null ) {
       loading.dismiss();
     }
     // console.log('await');
@@ -630,17 +829,96 @@ export class AppComponent {
     toast.present();
   }
 
+  public async deauth() {
+    this.wallet_address = null;
+  }
+
+  public async auth() {
+    this.wallet_execution_response = null;
+    await this.execute_command('Authorize', {
+    }, 0);
+    // console.log( this.wallet_execution_response );
+  }
+
+  public async auth_verify() {
+    let tx = '';
+    if ( this.wallet_execution_response ) {
+      // tx = this.wallet_execution_response.
+      // console.log(this.wallet_execution_response);
+      tx = this.wallet_execution_response.result.tx_hash_list[0];
+      this.confirm_auth(tx);
+    } else {
+      const alert = await this.alertController.create({
+        header: 'Provide tx hash of auth method interaction',
+        inputs: [
+          {
+            name: 'tx',
+            type: 'text',
+            placeholder: 'Enter transaction hash...'
+          }
+        ],
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            cssClass: 'warning',
+            handler: () => {
+              console.log('Confirm Cancel');
+            }
+          }, {
+            text: 'Proceed',
+            handler: (ev) => {
+              if ( ev.tx.length > 0 ) {
+                this.confirm_auth(ev.tx);
+              }
+            }
+          }
+        ]
+      });
+
+      await alert.present();
+    }
+
+  }
+
+  public async confirm_auth(tx) {
+    const res = await this.fetch_contract([
+      'auth_' + tx
+    ]);
+    if ( res != null ) {
+      // Blockchain got an actual data
+      // Parse keys per planet
+      try {
+        const contract_keys = res.txs[0].sc_keys;
+        if ( contract_keys['auth_' + tx] !== '' ) {
+          this.wallet_address = contract_keys['auth_' + tx];
+        } else {
+          const alert = await this.alertController.create({
+            header: 'Auth',
+            subHeader: 'Authorization attempt failed',
+            message: 'Invalid TX <b>(' + tx + ')</b> or transaction is not yet mined, try again later if you sure tx is correct',
+            buttons: ['OK']
+          });
+
+          await alert.present();
+        }
+      } catch (err) {
+        // err
+      }
+    }
+  }
+
   public async ping_wallet() {
+
     this.wallet_status = 1;
     console.log('Ping: Wallet');
     const httpOptions = {
       headers: new HttpHeaders({
-        'Content-Type':  'application/json'
+        'Content-Type': 'application/json',
       })
     };
     const params = {};
-    const data = JSON.stringify({ 'jsonrpc' : '2.0', 'id': 0, 'method': 'getaddress', 'params': params});
-
+    const data = JSON.stringify({ 'jsonrpc' : '2.0', 'id': 0, 'method': 'getbalance', 'params': params});
 
     // const loading = await this.presentLoadingWithOptions('Loading Wallet State');
 
@@ -650,10 +928,10 @@ export class AppComponent {
         if (subject['id'] === 0 && !subject['error']) {
           this.wallet_response = subject;
           this.wallet_status = 3;
-          this.wallet_address = 'set';
+          // this.wallet_address = subject.result.address;
           //
         } else {
-          this.toast('Cannot reach wallet endpoint. Make sure it is accessible.', 'danger');
+          this.toast('Cannot reach wallet endpoint. Make sure it is accessible.', 'danger', null, null);
           // alert('Error: Something went wrong');
           this.wallet_response = null;
           this.wallet_status = 0;
@@ -667,7 +945,8 @@ export class AppComponent {
         $('.pre1').text("curl -X POST "+($('.wallet_rpc').val())+"json_rpc -H \"Content-Type: application/json\" -d "+prep_data);
         */
         this.toast(
-          'Cannot reach wallet endpoint. Make sure wallet is running with --rpc-server or continue using dApp in offline mode.', 'danger');
+          'Cannot reach wallet endpoint. Make sure wallet is running with --rpc-server or continue using dApp in offline mode.',
+          'danger', null, null);
         // web Version
         // electron Version
         this.wallet_status = 0;
@@ -694,17 +973,23 @@ export class AppComponent {
         this.daemon_response = responseAfterSuccess;
         this.daemon_status = 3;
         this.load_game_settings();
-
+        this.run_block_timer();
         loading.dismiss();
       },
       responseAfterError => {
         this.toast(
-          'Cannot reach daemon endpoint. Make sure daemon is running localy and path is correct or use remote daemon address.', 'danger');
+          'Cannot reach daemon endpoint. Make sure daemon is running localy and path is correct or use remote daemon address.',
+          'danger', null, null);
         this.daemon_status = 0;
         this.daemon_response = null;
         loading.dismiss();
       }
     );
+  }
+
+  public refreshAll() {
+    this.ping_daemon();
+    this.ping_wallet();
   }
 
   private register_sound(key, sound) {

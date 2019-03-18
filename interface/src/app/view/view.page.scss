@@ -200,6 +200,9 @@ $color-common: white;
 
 .owner{
   cursor: pointer;
+  &:hover{
+    color: white;
+  }
 }
 
 .click{

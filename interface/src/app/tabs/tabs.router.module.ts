@@ -48,6 +48,15 @@ const routes: Routes = [
         ]
       },
       {
+        path: 'faq',
+        children: [
+          {
+            path: '',
+            loadChildren: '../faq/faq.module#FaqPageModule'
+          }
+        ]
+      },
+      {
         path: '',
         redirectTo: '/app/overview',
         pathMatch: 'full'

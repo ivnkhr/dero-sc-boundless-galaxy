@@ -318,8 +318,12 @@ function drawageManual(x,y,rad,sup){
 }
 
 function cleatTM(){
-  for (var i = 0; i < timeouts.length; i++) {
-      clearTimeout(timeouts[i]);
+  try{
+    for (var i = 0; i < timeouts.length; i++) {
+        clearTimeout(timeouts[i]);
+    }
+  }catch(err){
+    // err
   }
 }
 

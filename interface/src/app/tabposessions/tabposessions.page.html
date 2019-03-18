@@ -87,6 +87,9 @@
                     <ion-col size="3" class="center">
                     
                       <app-planetrenderer [item]="planet_focus"></app-planetrenderer>
+                      <br/>
+                      <span class="excile" *ngIf="planet_focus.Owned && planet_focus.card_power >= 95 && rootApp.display_redeemable_in(planet_focus) >= 1" (click)="rootApp.redeem(planet_focus.Owner)">reward redeemable in {{rootApp.display_redeemable_in(planet_focus)}} blocks</span>
+                      <span class="excile excile-but" *ngIf="planet_focus.Owned && planet_focus.card_power >= 95 && rootApp.display_redeemable_in(planet_focus) < 1" (click)="rootApp.redeem(planet_focus.Owner)">redeeme ~{{rootApp.display_avarage_reward()}} DERO</span>
                       
                     </ion-col>
                     <ion-col size="6">
@@ -97,13 +100,71 @@
                           <span *ngIf="planet_focus.vRarityRate==1">Rare</span>
                           <span *ngIf="planet_focus.vRarityRate==2">Legendary</span>
                           <span *ngIf="planet_focus.vRarityRate==3">EPIC</span>
+                          <span class="excile" *ngIf="planet_focus.card_power >= 95">EXCELENT</span>
                           {{planet_focus.Name}}
                         </div>
                         <div title="{{planet_focus.Owner}}">owned by <u class="owner">{{rootApp.display_nickname(planet_focus.Owner)}}</u></div>
                         
                         <div class="description">
                           <div [innerHTML]="planet_focus.Moto">...</div>
-                          <div>Card Power: {{planet_focus.vRarityAbsolute}}%</div>
+                          <div (click)="planet_focus.card_desc=true" class="{{(planet_focus.card_power>=95)?'excile':''}}">Overal Card Power: {{planet_focus.card_power}}% (expand)</div>
+                          <div class="card-power-breakdown" *ngIf="planet_focus.card_desc">
+
+                            <ion-grid>
+                              <ion-row>
+                                
+                                <ion-col>
+                                  <div class="itemc">
+                                    <ion-icon color="warning" *ngIf="(planet_focus.RARECloudiness)" name="star"></ion-icon><b>Fire</b><br/>
+                                    <ion-progress-bar color="{{(planet_focus.RARECloudiness)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RARECloudiness/100}}"></ion-progress-bar>
+                                  </div>
+                                  <div class="itemc">
+                                    <ion-icon color="warning" *ngIf="(planet_focus.RARECold)" name="star"></ion-icon><b>Air</b><br/>
+                                    <ion-progress-bar color="{{(planet_focus.RARECold)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RARECold/100}}"></ion-progress-bar>
+                                  </div>
+                                  <div class="itemc">
+                                    <ion-icon color="warning" *ngIf="(planet_focus.RAREOcean)" name="star"></ion-icon><b>Water</b><br/>
+                                    <ion-progress-bar color="{{(planet_focus.RAREOcean)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RAREOcean/100}}"></ion-progress-bar>
+                                  </div>
+                                </ion-col>
+                                
+                                <ion-col>
+                                  <div class="itemc">
+                                    <ion-icon color="warning" *ngIf="(planet_focus.RARETemperate)" name="star"></ion-icon><b>Magma</b><br/>
+                                    <ion-progress-bar color="{{(planet_focus.RARETemperate)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RARETemperate/100}}"></ion-progress-bar>
+                                  </div>
+                                  <div class="itemc">
+                                    <ion-icon color="warning" *ngIf="(planet_focus.RAREWarm)" name="star"></ion-icon><b>Terra</b><br/>
+                                    <ion-progress-bar color="{{(planet_focus.RAREWarm)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RAREWarm/100}}"></ion-progress-bar>
+                                  </div>
+                                  <div class="itemc">
+                                    <ion-icon color="warning" *ngIf="(planet_focus.RAREHot)" name="star"></ion-icon><b>Ice</b><br/>
+                                    <ion-progress-bar color="{{(planet_focus.RAREHot)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RAREHot/100}}"></ion-progress-bar>
+                                  </div>
+                                </ion-col>
+                                
+                                <ion-col>
+                                  <div class="itemc">
+                                    <ion-icon color="warning" *ngIf="(planet_focus.RARESpeckle)" name="star"></ion-icon><b>Light</b><br/>
+                                    <ion-progress-bar color="{{(planet_focus.RARESpeckle)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RARESpeckle/100}}"></ion-progress-bar>
+                                  </div>
+                                  <div class="itemc">
+                                    <ion-icon color="warning" *ngIf="(planet_focus.RAREClouds)" name="star"></ion-icon><b>Mist</b><br/>
+                                    <ion-progress-bar color="{{(planet_focus.RAREClouds)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RAREClouds/100}}"></ion-progress-bar>
+                                  </div>
+                                  <div class="itemc">
+                                    <ion-icon color="warning" *ngIf="(planet_focus.RARELightColor)" name="star"></ion-icon><b>Darkness</b><br/>
+                                    <ion-progress-bar color="{{(planet_focus.RARELightColor)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RARELightColor/100}}"></ion-progress-bar>
+                                  </div>
+                                </ion-col>
+
+                              </ion-row>
+                            </ion-grid>
+
+                          </div>
+                          <div>
+                            ---
+                          </div>
                         </div>
 
                       </div>
@@ -119,7 +180,7 @@
                         
                         <div *ngIf="!this.enchant_subjec">
                         
-                          <ion-button fill="solid" color="success" size="small" expand="block" (click)="null">
+                          <ion-button fill="solid" size="small" color="success" *ngIf="planet_focus && planet_focus.Owned" expand="block" (click)="this.rootApp.editPlanet(planet_focus)">
                             <ion-icon slot="start" name="color-wand"></ion-icon> Change Description
                           </ion-button>
                           
@@ -127,16 +188,20 @@
                             <ion-icon slot="start" name="flask"></ion-icon> Enchance Card
                           </ion-button>
                           
-                          <ion-button fill="solid" color="warning" size="small" expand="block" (click)="null">
+                          <ion-button fill="solid" size="small" color="warning" *ngIf="planet_focus && planet_focus.Owned && !planet_focus.OnSale" expand="block" (click)="this.rootApp.putOnSell(planet_focus)">
                             <ion-icon slot="start" name="wallet"></ion-icon> Put On Sell
+                          </ion-button>
+                            
+                          <ion-button fill="solid" size="small" color="warning" *ngIf="planet_focus && planet_focus.Owned && planet_focus.OnSale" expand="block" (click)="this.rootApp.putOnSell(planet_focus)">
+                            <ion-icon slot="start" name="wallet"></ion-icon> On Sale ! Current Price: {{this.rootApp.onChain_value(planet_focus.OnSale)}} DERO
                           </ion-button>
                           
                         </div>
                       
                         <div *ngIf="this.enchant_subjec">
                         
-                          <ion-button *ngIf="!(enchant_subjec && (planet_focus.planet_position === enchant_subjec.planet_position))" fill="solid" color="warning" size="large" expand="block" (click)="flame(planet_focus.planet_position)">
-                            <ion-icon slot="start" name="flame"></ion-icon> Use Card
+                          <ion-button *ngIf="!(enchant_subjec && (planet_focus.planet_position === enchant_subjec.planet_position))" fill="solid" color="warning" size="large" expand="block" (click)="rootApp.flame(enchant_subjec, planet_focus)">
+                            <ion-icon slot="start" name="flame"></ion-icon> Flame Card
                           </ion-button>
                           
                         </div>
