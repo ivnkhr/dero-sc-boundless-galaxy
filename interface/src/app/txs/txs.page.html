@@ -1,0 +1,74 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title color="light">
+      Current Session Transaction History
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="solid" (click)="rootApp.reloadTXs()">
+        <ion-icon slot="start" name="refresh-circle"></ion-icon> Refresh List
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <!--
+  <pre> 
+    <code>
+       {{ rootApp.latest_txs | json }}
+    </code>
+  </pre>
+  -->
+  
+  <ion-item color="light">
+    <ion-label>
+      
+      <ion-grid>
+        <ion-row>
+          <ion-col size="5">
+            TX
+          </ion-col>
+          <ion-col size="3">
+            DATA
+          </ion-col>
+          <ion-col size="2">
+            VALUE
+          </ion-col>
+          <ion-col size="2">
+            ACTIONS
+          </ion-col>
+        </ion-row>
+        
+        <ng-container *ngIf="rootApp.latest_txs?.length;else no_data_templ">
+          <ion-row *ngFor="let instance of rootApp.latest_txs?.reverse()">
+            <ion-col size="5">
+              <div class="wordwrap">
+              {{instance.response.result.tx_hash_list[0]}}
+              </div>
+            </ion-col>
+            <ion-col size="3">
+              <b>{{instance.request.params.sc_tx.entrypoint}}</b>
+              <pre>{{ instance.request.params.sc_tx.params | json }}</pre>
+            </ion-col>
+            <ion-col size="2">
+              {{(instance.request.params.sc_tx.value>0)?this.rootApp.onChain_value(instance.request.params.sc_tx.value):'-'}} DERO
+            </ion-col>
+            <ion-col size="2">
+              <a href="http://pool.dero.io:8080/tx/{{instance.response.result.tx_hash_list[0]}}" target="_blank">View In Blockexplorer</a>
+            </ion-col>
+          </ion-row>
+        </ng-container>
+      </ion-grid>
+      
+    </ion-label>
+  </ion-item>
+  
+</ion-content>
+
+<ng-template #no_data_templ>
+  <ion-row>
+    <ion-col align-items-center>
+      No recent transactions
+    </ion-col>
+  </ion-row>
+</ng-template>

@@ -65,14 +65,18 @@ export class AppComponent {
     variable_dev_fee:         '5',
     variable_redeem_offset:   '10',
     variable_redeem_precent:  '5',
+    variable_enchant_precent: '20',
 
-    stats_excelent_cards: '0',
+    stats_excelent_cards:     '0',
 
     balance_dev_fee:          '0',
     balance_shared_pool:      '0'
   };
 
-  public contract = '5231b6a20e58629c3f76554853770fd623b83cf1a0dcd82899fca6f5c5990d98';
+  public latest_tx_count = 0;
+  public latest_txs = [];
+
+  public contract = '1a06797d8427df0644c6834b591d9a4f5332e7a4f6eb79f625bae5dabf15d394';
   public contract_response = null;
   public variables = [''];
   public active_method = null;
@@ -99,9 +103,9 @@ export class AppComponent {
 
   async redeem(planet) {
     await this.execute_command('PlanetRedeem', {
-      planet_x: planet.x,
-      planet_y: planet.y,
-      planet_z: planet.z,
+      position_x: planet.x,
+      position_y: planet.y,
+      position_z: planet.z,
     }, 0);
     console.log(planet, this.daemon_response.result.stableheight, this.settings_laoded.variable_redeem_offset);
     // planet.next_redeem_at = parseInt(this.daemon_response.result.stableheight, 10)
@@ -169,9 +173,9 @@ export class AppComponent {
           handler: (ev) => {
             if ( ev.price > 0 ) {
               this.execute_command('PlanetSellOut', {
-                sector_x: planet.x,
-                sector_y: planet.y,
-                sector_z: planet.z,
+                position_x: planet.x,
+                position_y: planet.y,
+                position_z: planet.z,
                 price: ev.price * 1000000000000
               }, 0);
             }
@@ -238,8 +242,8 @@ export class AppComponent {
           handler: (ev) => {
             if ( ev.moto.length > 0 ) {
               this.execute_command('SectorSetMoto', {
-                sector_x: this.onChain_position(x),
-                sector_y: this.onChain_position(y),
+                sector_x: parseInt(this.onChain_position(x), 10),
+                sector_y: parseInt(this.onChain_position(y), 10),
                 moto: ev.moto
               }, this.settings_laoded.variable_sector_moto_fee);
             }
@@ -281,9 +285,9 @@ export class AppComponent {
           handler: (ev) => {
             if ( ev.moto.length > 0 && ev.moto.length > 0 ) {
               this.execute_command('PlanetSetDesc', {
-                sector_x: planet.x,
-                sector_y: planet.y,
-                sector_z: planet.z,
+                position_x: planet.x,
+                position_y: planet.y,
+                position_z: planet.z,
                 moto: ev.moto,
                 name: ev.name
               }, 0);
@@ -321,16 +325,18 @@ export class AppComponent {
   }
 
   public onChain_value(full_dero) {
-    return full_dero / 1000000000000;
+    return full_dero / 1000000000000; // 1000000000000
   }
 
   public display_avarage_reward() {
     if ( this.settings_laoded ) {
-      return (
+      const excel_cards = (this.settings_laoded.stats_excelent_cards === 0) ? 1 : this.settings_laoded.stats_excelent_cards;
+
+      return this.onChain_value(
         (
-          (this.settings_laoded.balance_shared_pool / (this.settings_laoded.stats_excelent_cards + 1)
-        ) * this.settings_laoded.variable_redeem_precent ) / 100
-      );
+          (this.settings_laoded.balance_shared_pool / (parseInt(excel_cards, 10) + 0))
+        * this.settings_laoded.variable_redeem_precent ) / 100
+      ).toFixed(5);
     } else {
       return 'Not Calculated';
     }
@@ -635,6 +641,16 @@ export class AppComponent {
 
   }
 
+  public objectToString(o) {
+    Object.keys(o).forEach(k => {
+      if (typeof o[k] === 'object') {
+        return toString(o[k]);
+      }
+      o[k] = '' + o[k];
+    });
+    return o;
+  }
+
   public async execute_command(method, params, value) {
     this.wallet_execution_response = null;
     // console.log(this.active_method);
@@ -646,7 +662,7 @@ export class AppComponent {
       {
         'entrypoint': method,
         'scid': this.contract,
-        'params': params,
+        'params': this.objectToString(params),
         'value': parseInt(value, 10)
       }
     };
@@ -679,7 +695,7 @@ export class AppComponent {
     const alert = await this.alertController.create({
       header: 'Confirm interaction',
       subHeader: 'Buy pressing okay, wallet will execute folowing command:',
-      message: '<b>' + method + (value ? ' (' + this.onChain_value(value) + ' DERO)' : '') + '</b><hr/>' + line,
+      message: '<b>' + method + (value ? ' <span class="al">(' + this.onChain_value(value) + ' DERO)</span>' : '') + '</b><hr/>' + line,
       buttons: [
         {
           text: 'Cancel',
@@ -704,8 +720,11 @@ export class AppComponent {
                 this.toast( responseAfterSuccess['error']['message'], 'warning', null, null );
               } else {
                 this.wallet_execution_response = responseAfterSuccess;
+                this.latest_txs.push({request: JSON.parse(data), response: responseAfterSuccess});
+                this.latest_tx_count++;
                 this.toast(
-                  'Transaction sent to Blockchain. Once its mined press (Refresh Blockchain State) to see results.', 'success', null, null);
+                  'Transaction sent to Blockchain. Once its mined press (Refresh Blockchain State) to see results.' +
+                  'You can also check transaction status in (Latest TX`s) section', 'success', null, 6000);
               }
             })
             .catch(responseAfterError => {
@@ -734,6 +753,11 @@ export class AppComponent {
 
     await alert.present();
 
+  }
+
+  public reloadTXs() {
+    this.latest_tx_count = 0;
+    // public latest_txs = [];
   }
 
   public async view_contract() {
@@ -1009,7 +1033,7 @@ export class AppComponent {
             console.log('Your wallet is', val);
             this.wallet = val;
           } else {
-            this.wallet = 'http://127.0.0.1:30307';
+            this.wallet = 'http://127.0.0.1:30309';
             this.storage.set('wallet', this.wallet);
           }
           this.ping_wallet();

@@ -1,6 +1,12 @@
 <ion-tabs>
 
   <ion-tab-bar slot="bottom">
+    
+    <ion-tab-button tab="faq">
+      <ion-icon name="information-circle"></ion-icon>
+      <ion-label>Info Center</ion-label>
+    </ion-tab-button>
+    
     <ion-tab-button tab="overview">
       <ion-icon name="home"></ion-icon>
       <ion-label>Home</ion-label>
@@ -16,9 +22,9 @@
       <ion-label>Possessions</ion-label>
     </ion-tab-button>
     
-    <ion-tab-button tab="faq">
-      <ion-icon name="information-circle"></ion-icon>
-      <ion-label>Info Center</ion-label>
+    <ion-tab-button tab="txs" *ngIf="rootApp.wallet_status!=0">
+      <ion-icon name="flash"></ion-icon>
+      <ion-label>Latest TX`s <span class="txs" *ngIf="rootApp.latest_tx_count>0">{{rootApp.latest_tx_count}}</span></ion-label>
     </ion-tab-button>
     
     <ion-tab-button tab="settings">

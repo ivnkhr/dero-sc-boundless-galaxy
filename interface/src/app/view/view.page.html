@@ -44,7 +44,7 @@
     <div class="planet-moto">
       <div class="desc" [hidden]="!this.moto">{{this.moto}}</div> 
       <ion-button fill="solid" size="small" color="success" expand="block" (click)="this.rootApp.setSectorMoto(x, y)">
-        <ion-icon slot="start" name="information-circle"></ion-icon> Set Sector Moto
+        <ion-icon slot="start" name="information-circle"></ion-icon> Set Sector Moto ({{this.rootApp.onChain_value(this.rootApp.settings_laoded.variable_sector_moto_fee)}} DERO)
       </ion-button>
       <!--
       <ion-button fill="solid" size="small" color="success" expand="block" (click)="this.rootApp.setGalaxyEmperor(x, y)">
@@ -135,8 +135,10 @@
         <div class="desc" [innerHTML]="planet_focus.Moto">
           ...
         </div>
-        <div class="card-power-breakdown-exp" *ngIf="!planet_focus.card_desc" (click)="planet_focus.card_desc=true">
-          Overall Card Power: {{planet_focus.card_power}}% (expand)
+        <div class="card-power-breakdown-exp" (click)="planet_focus.card_desc=!planet_focus.card_desc">
+          Overall Card Power: {{planet_focus.card_power}}%
+          <span *ngIf="!planet_focus.card_desc">(expand)</span>
+          <span *ngIf="planet_focus.card_desc">(hide)</span>
         </div>
         <div class="card-power-breakdown" *ngIf="planet_focus.card_desc">
 
@@ -145,45 +147,45 @@
               
               <ion-col>
                 <div class="itemc">
-                  <ion-icon color="warning" *ngIf="(planet_focus.RARECloudiness)" name="star"></ion-icon><b>Fire</b><br/>
+                  <ion-icon color="warning" *ngIf="(planet_focus.RARECloudiness)" name="star"></ion-icon><b>Fire</b> ({{planet_focus.RAREPowers.RARECloudiness}}%)<br/>
                   <ion-progress-bar color="{{(planet_focus.RARECloudiness)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RARECloudiness/100}}"></ion-progress-bar>
                 </div>
                 <div class="itemc">
-                  <ion-icon color="warning" *ngIf="(planet_focus.RARECold)" name="star"></ion-icon><b>Air</b><br/>
+                  <ion-icon color="warning" *ngIf="(planet_focus.RARECold)" name="star"></ion-icon><b>Air</b> ({{planet_focus.RAREPowers.RARECold}}%)<br/>
                   <ion-progress-bar color="{{(planet_focus.RARECold)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RARECold/100}}"></ion-progress-bar>
                 </div>
                 <div class="itemc">
-                  <ion-icon color="warning" *ngIf="(planet_focus.RAREOcean)" name="star"></ion-icon><b>Water</b><br/>
+                  <ion-icon color="warning" *ngIf="(planet_focus.RAREOcean)" name="star"></ion-icon><b>Water</b> ({{planet_focus.RAREPowers.RAREOcean}}%)<br/>
                   <ion-progress-bar color="{{(planet_focus.RAREOcean)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RAREOcean/100}}"></ion-progress-bar>
                 </div>
               </ion-col>
               
               <ion-col>
                 <div class="itemc">
-                  <ion-icon color="warning" *ngIf="(planet_focus.RARETemperate)" name="star"></ion-icon><b>Magma</b><br/>
+                  <ion-icon color="warning" *ngIf="(planet_focus.RARETemperate)" name="star"></ion-icon><b>Magma</b> ({{planet_focus.RAREPowers.RARETemperate}}%)<br/>
                   <ion-progress-bar color="{{(planet_focus.RARETemperate)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RARETemperate/100}}"></ion-progress-bar>
                 </div>
                 <div class="itemc">
-                  <ion-icon color="warning" *ngIf="(planet_focus.RAREWarm)" name="star"></ion-icon><b>Terra</b><br/>
+                  <ion-icon color="warning" *ngIf="(planet_focus.RAREWarm)" name="star"></ion-icon><b>Terra</b> ({{planet_focus.RAREPowers.RAREWarm}}%)<br/>
                   <ion-progress-bar color="{{(planet_focus.RAREWarm)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RAREWarm/100}}"></ion-progress-bar>
                 </div>
                 <div class="itemc">
-                  <ion-icon color="warning" *ngIf="(planet_focus.RAREHot)" name="star"></ion-icon><b>Ice</b><br/>
+                  <ion-icon color="warning" *ngIf="(planet_focus.RAREHot)" name="star"></ion-icon><b>Ice</b> ({{planet_focus.RAREPowers.RAREHot}}%)<br/>
                   <ion-progress-bar color="{{(planet_focus.RAREHot)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RAREHot/100}}"></ion-progress-bar>
                 </div>
               </ion-col>
               
               <ion-col>
                 <div class="itemc">
-                  <ion-icon color="warning" *ngIf="(planet_focus.RARESpeckle)" name="star"></ion-icon><b>Light</b><br/>
+                  <ion-icon color="warning" *ngIf="(planet_focus.RARESpeckle)" name="star"></ion-icon><b>Light</b> ({{planet_focus.RAREPowers.RARESpeckle}}%)<br/>
                   <ion-progress-bar color="{{(planet_focus.RARESpeckle)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RARESpeckle/100}}"></ion-progress-bar>
                 </div>
                 <div class="itemc">
-                  <ion-icon color="warning" *ngIf="(planet_focus.RAREClouds)" name="star"></ion-icon><b>Mist</b><br/>
+                  <ion-icon color="warning" *ngIf="(planet_focus.RAREClouds)" name="star"></ion-icon><b>Mist</b> ({{planet_focus.RAREPowers.RAREClouds}}%)<br/>
                   <ion-progress-bar color="{{(planet_focus.RAREClouds)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RAREClouds/100}}"></ion-progress-bar>
                 </div>
                 <div class="itemc">
-                  <ion-icon color="warning" *ngIf="(planet_focus.RARELightColor)" name="star"></ion-icon><b>Darkness</b><br/>
+                  <ion-icon color="warning" *ngIf="(planet_focus.RARELightColor)" name="star"></ion-icon><b>Darkness</b> ({{planet_focus.RAREPowers.RARELightColor}}%)<br/>
                   <ion-progress-bar color="{{(planet_focus.RARELightColor)?'warning':'secondary'}}" value="{{planet_focus.RAREPowers.RARELightColor/100}}"></ion-progress-bar>
                 </div>
               </ion-col>

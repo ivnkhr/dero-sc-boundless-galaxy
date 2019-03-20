@@ -57,6 +57,15 @@ const routes: Routes = [
         ]
       },
       {
+        path: 'txs',
+        children: [
+          {
+            path: '',
+            loadChildren: '../txs/txs.module#TxsPageModule'
+          }
+        ]
+      },
+      {
         path: '',
         redirectTo: '/app/overview',
         pathMatch: 'full'

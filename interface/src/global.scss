@@ -33,9 +33,25 @@
   }
 }
 
+.wordwrap{
+  overflow-x: auto;
+}
+
+.al{
+  color: red;
+}
+
+.txs{
+  background-color: purple;
+  color: yellow;
+  padding-left: 4px;
+  padding-right: 4px;
+  border-radius: 6px;
+}
+
 .card-power-breakdown{
   .itemc{
-    font-size: 12px;
+    font-size: 10px;
     text-align: center!important;
     padding-bottom: 8px;
   }

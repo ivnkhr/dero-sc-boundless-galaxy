@@ -65,7 +65,7 @@
             
             <div class="item"><span>Current Game Pool:</span> {{rootApp.onChain_value(rootApp.settings_laoded.balance_shared_pool)}} DERO</div>
             <div class="item"><span><span class="excile">EXCELENT</span> Cards (>95% card power, eligable for reward):</span> {{rootApp.settings_laoded.stats_excelent_cards||0}}</div>
-            <div class="item"><span>Current Redeemable Reward Per <span class="excile">EXCELENT</span> Card:</span> ~{{rootApp.onChain_value(rootApp.display_avarage_reward())}} DERO</div>
+            <div class="item"><span>Current Redeemable Reward Per <span class="excile">EXCELENT</span> Card:</span> ~{{(rootApp.display_avarage_reward())}} DERO</div>
             <div class="item"><span><span class="excile">EXCELENT</span> Cards Reward Redeemable Each:</span> {{rootApp.settings_laoded.variable_redeem_offset||0}} blocks</div>
             <div class="item"><span>Total Planets Colonized:</span> {{rootApp.settings_laoded.stats_planet_counter||0}}</div>
             
