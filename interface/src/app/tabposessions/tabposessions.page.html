@@ -88,8 +88,8 @@
                     
                       <app-planetrenderer [item]="planet_focus"></app-planetrenderer>
                       <br/>
-                      <span class="excile" *ngIf="planet_focus.Owned && planet_focus.card_power >= 95 && rootApp.display_redeemable_in(planet_focus) >= 1" (click)="rootApp.redeem(planet_focus.Owner)">reward redeemable in {{rootApp.display_redeemable_in(planet_focus)}} blocks</span>
-                      <span class="excile excile-but" *ngIf="planet_focus.Owned && planet_focus.card_power >= 95 && rootApp.display_redeemable_in(planet_focus) < 1" (click)="rootApp.redeem(planet_focus.Owner)">redeeme ~{{rootApp.display_avarage_reward()}} DERO</span>
+                      <span class="excile" *ngIf="planet_focus.Owned && planet_focus.card_power >= 95 && rootApp.display_redeemable_in(planet_focus) >= 1" (click)="rootApp.redeem(planet_focus)">reward redeemable in {{rootApp.display_redeemable_in(planet_focus)}} blocks</span>
+                      <span class="excile excile-but" *ngIf="planet_focus.Owned && planet_focus.card_power >= 95 && rootApp.display_redeemable_in(planet_focus) < 1" (click)="rootApp.redeem(planet_focus)">redeeme ~{{rootApp.display_avarage_reward()}} DERO</span>
                       
                     </ion-col>
                     <ion-col size="6">
@@ -202,8 +202,8 @@
                       
                         <div *ngIf="this.enchant_subjec">
                         
-                          <ion-button *ngIf="!(enchant_subjec && (planet_focus.planet_position === enchant_subjec.planet_position))" fill="solid" color="warning" size="large" expand="block" (click)="rootApp.flame(enchant_subjec, planet_focus)">
-                            <ion-icon slot="start" name="flame"></ion-icon> Flame Card
+                          <ion-button *ngIf="!(enchant_subjec && (planet_focus.planet_position === enchant_subjec.planet_position))" fill="solid" color="warning" size="large" expand="block" (click)="flame(enchant_subjec, planet_focus)">
+                            <ion-icon slot="start" name="flame"></ion-icon> Burn Card
                           </ion-button>
                           
                         </div>

@@ -461,47 +461,47 @@ Function PlanetMerge(planet1_x Uint64, planet1_y Uint64, planet1_z Uint64, plane
 	// Incrust new stats into 1st card
 	60 LET attr = "/RARECloudiness"
 	61 STORE(planet1_position + attr, LOAD(planet1_position + attr) + ((LOAD(planet2_position + attr) * variable_enchant_precent) / 100))
-	62 IF LOAD(planet1_position + attr) >= 100 THEN GOTO 70
+	62 IF LOAD(planet1_position + attr) <= 100 THEN GOTO 70
 	63 STORE(planet1_position + attr, 100)
 	
 	70 LET attr = "/RARECold"
 	71 STORE(planet1_position + attr, LOAD(planet1_position + attr) + ((LOAD(planet2_position + attr) * variable_enchant_precent) / 100))
-	72 IF LOAD(planet1_position + attr) >= 100 THEN GOTO 80
+	72 IF LOAD(planet1_position + attr) <= 100 THEN GOTO 80
 	73 STORE(planet1_position + attr, 100)
 	
 	80 LET attr = "/RAREOcean"
 	81 STORE(planet1_position + attr, LOAD(planet1_position + attr) + ((LOAD(planet2_position + attr) * variable_enchant_precent) / 100))
-	82 IF LOAD(planet1_position + attr) >= 100 THEN GOTO 90
+	82 IF LOAD(planet1_position + attr) <= 100 THEN GOTO 90
 	83 STORE(planet1_position + attr, 100)
 	
 	90 LET attr = "/RARETemperate"
 	91 STORE(planet1_position + attr, LOAD(planet1_position + attr) + ((LOAD(planet2_position + attr) * variable_enchant_precent) / 100))
-	92 IF LOAD(planet1_position + attr) >= 100 THEN GOTO 100
+	92 IF LOAD(planet1_position + attr) <= 100 THEN GOTO 100
 	93 STORE(planet1_position + attr, 100)
 	
 	100 LET attr = "/RAREWarm"
 	101 STORE(planet1_position + attr, LOAD(planet1_position + attr) + ((LOAD(planet2_position + attr) * variable_enchant_precent) / 100))
-	102 IF LOAD(planet1_position + attr) >= 100 THEN GOTO 110
+	102 IF LOAD(planet1_position + attr) <= 100 THEN GOTO 110
 	103 STORE(planet1_position + attr, 100)
 	
 	110 LET attr = "/RAREHot"
 	111 STORE(planet1_position + attr, LOAD(planet1_position + attr) + ((LOAD(planet2_position + attr) * variable_enchant_precent) / 100))
-	112 IF LOAD(planet1_position + attr) >= 100 THEN GOTO 120
+	112 IF LOAD(planet1_position + attr) <= 100 THEN GOTO 120
 	113 STORE(planet1_position + attr, 100)
 	
 	120 LET attr = "/RARESpeckle"
 	121 STORE(planet1_position + attr, LOAD(planet1_position + attr) + ((LOAD(planet2_position + attr) * variable_enchant_precent) / 100))
-	122 IF LOAD(planet1_position + attr) >= 100 THEN GOTO 130
+	122 IF LOAD(planet1_position + attr) <= 100 THEN GOTO 130
 	123 STORE(planet1_position + attr, 100)
 	
 	130 LET attr = "/RAREClouds"
 	131 STORE(planet1_position + attr, LOAD(planet1_position + attr) + ((LOAD(planet2_position + attr) * variable_enchant_precent) / 100))
-	132 IF LOAD(planet1_position + attr) >= 100 THEN GOTO 140
+	132 IF LOAD(planet1_position + attr) <= 100 THEN GOTO 140
 	133 STORE(planet1_position + attr, 100)
 	
 	140 LET attr = "/RARELightColor"
 	141 STORE(planet1_position + attr, LOAD(planet1_position + attr) + ((LOAD(planet2_position + attr) * variable_enchant_precent) / 100))
-	142 IF LOAD(planet1_position + attr) >= 100 THEN GOTO 190
+	142 IF LOAD(planet1_position + attr) <= 100 THEN GOTO 190
 	143 STORE(planet1_position + attr, 100)
 	
 	// Set newly calculated card power
@@ -560,7 +560,7 @@ Function PlanetSellOut(position_x Uint64, position_y Uint64, position_z Uint64, 
 	
 	30 PRINTF " --- "
 
-	100 STORE(planet_position + "/OnSell", price)
+	100 STORE(planet_position + "/OnSale", price)
 
 	
 	999 RETURN Info("(PlanetSellOut) Successfully Executed")
@@ -576,10 +576,10 @@ Function PlanetBuyIn(position_x Uint64, position_y Uint64, position_z Uint64, va
 	10 IF EXISTS(planet_position + "/Owner") == 1 THEN GOTO 20
 	11 RETURN Error("Unpermited Action. Planet does not exist.")
 	
-	20 IF value > 0 THEN GOTO 30 // To bypass 0 OnSell value, wich corresponds to not being set on sale
+	20 IF value > 0 THEN GOTO 30 // To bypass 0 OnSale value, wich corresponds to not being set on sale
 	21 RETURN Error("Unpermited Action. Value should be more then 0.")
 	
-	30 IF( value >= LOAD(planet_position + "/OnSell") ) THEN GOTO 40
+	30 IF( value >= LOAD(planet_position + "/OnSale") ) THEN GOTO 40
 	31 RETURN Error("Unpermited Action. Card price is higher then youve payed.")
 	
 	40 PRINTF " --- "
@@ -596,7 +596,7 @@ Function PlanetBuyIn(position_x Uint64, position_y Uint64, position_z Uint64, va
 	61 STORE(new_owner + "_index", stack_index + 1)
 	
 	100 STORE(planet_position + "/Owner", new_owner)
-	101 STORE(planet_position + "/OnSell", 0)
+	101 STORE(planet_position + "/OnSale", 0)
 
 
 	999 RETURN Info("(PlanetSellOut) Successfully Executed")

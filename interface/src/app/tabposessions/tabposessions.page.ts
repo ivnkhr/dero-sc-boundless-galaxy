@@ -72,7 +72,10 @@ export class TabposessionsPage implements OnInit, AfterViewInit {
     setTimeout( () => this.read_query_params() );
   }
 
-
+  public flame(enchant_subjec, planet_focus) {
+    this.enchant_subjec = null;
+    this.rootApp.flame(enchant_subjec, planet_focus);
+  }
 
 /*
   public ngOnDestroy() {
