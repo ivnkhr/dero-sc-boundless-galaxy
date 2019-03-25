@@ -17,84 +17,98 @@
     <ion-row>
       <ion-col>
         
-        <ion-card color="light" class="welcome">
-          <ion-card-content *ngIf="rootApp.wallet_address">
-            <ion-grid>
-              <ion-row>
-                <ion-col>
-                  <b>Your Profile</b>
-                </ion-col>
-                <ion-col size="3">
-                  <ion-button fill="solid" size="small" color="success" expand="block" (click)="rootApp.setNewName()">
-                    <ion-icon slot="start" name="person"></ion-icon> Update Nickname
-                  </ion-button>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-            
-            
-            <div class="item"><span>Nickname:</span> {{rootApp.display_nickname(rootApp.wallet_address)}}</div>
-            <div class="item"><span>Sectors Scanned:</span> {{values.sectors}}</div>
-            <div class="item"><span>Planets Discovered:</span> {{values.total}}</div>
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              
+              <ion-card color="light" class="welcome">
+                <ion-card-content *ngIf="rootApp.wallet_address">
+                  <ion-grid>
+                    <ion-row>
+                      <ion-col>
+                        <b>Your Profile</b>
+                      </ion-col>
+                      <ion-col size="4">
+                        <ion-button fill="solid" size="small" color="success" expand="block" (click)="rootApp.setNewName()">
+                          <ion-icon slot="start" name="person"></ion-icon> Change Nick
+                        </ion-button>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                  
+                  
+                  <div class="item"><span>Nickname:</span> {{rootApp.display_nickname(rootApp.wallet_address)}}</div>
+                  <div class="item"><span>Sectors Scanned:</span> {{values.sectors}}</div>
+                  <div class="item"><span>Planets Discovered:</span> {{values.total}}</div>
 
-          </ion-card-content>
-          <ion-card-content *ngIf="!rootApp.wallet_address">
-            <b>Your Profile</b>
-            <br/>
-            In order for app correctly display your possesions, you need to authorize
-            <br/><br/>
-            <ion-button fill="solid" size="small" color="success" expand="block" routerLink="/app/settings">
-              <ion-icon slot="start" name="person"></ion-icon> Authorize
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
+                </ion-card-content>
+                <ion-card-content *ngIf="!rootApp.wallet_address">
+                  <b>Your Profile</b>
+                  <br/>
+                  In order for app correctly display your possesions, you need to authorize
+                  <br/><br/>
+                  <ion-button fill="solid" size="small" color="success" expand="block" routerLink="/app/settings">
+                    <ion-icon slot="start" name="person"></ion-icon> Authorize
+                  </ion-button>
+                </ion-card-content>
+              </ion-card>
+              
+            </ion-col>
+            <ion-col>
         
-        <ion-card color="light" class="welcome">
-          <ion-card-content>
-            <ion-grid>
-              <ion-row>
-                <ion-col>
-                  <b>Game Stats</b>
-                </ion-col>
-                <ion-col size="3" style="color: red; text-align: center;">
-                  <u *ngIf="rootApp.daemon_response && rootApp.daemon_response.result.testnet">TESTNET</u>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
+              <ion-card color="light" class="welcome">
+                <ion-card-content>
+                  <ion-grid>
+                    <ion-row>
+                      <ion-col>
+                        <b>Game Stats</b>
+                      </ion-col>
+                      <ion-col size="4" style="color: red; text-align: center;">
+                        <u *ngIf="rootApp.daemon_response && rootApp.daemon_response.result.testnet">TESTNET</u>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                  
+                  
+                  <div class="item"><span>Current Game Pool:</span> {{rootApp.onChain_value(rootApp.settings_laoded.balance_shared_pool)}} DERO</div>
+                  <div class="item"><span><span class="excile">EXCELENT</span> Cards (>95% card power, eligable for reward):</span> {{rootApp.settings_laoded.stats_excelent_cards||0}}</div>
+                  <div class="item"><span>Current Redeemable Reward Per <span class="excile">EXCELENT</span> Card:</span> ~{{(rootApp.display_avarage_reward())}} DERO</div>
+                  <div class="item"><span><span class="excile">EXCELENT</span> Cards Reward Redeemable Each:</span> {{rootApp.settings_laoded.variable_redeem_offset||0}} blocks</div>
+                  <div class="item"><span>Total Planets Colonized:</span> {{rootApp.settings_laoded.stats_planet_counter||0}}</div>
+                  
+                  <br/>
+                  <div *ngIf="rootApp.daemon_response">
+                    <ion-grid>
+                      <ion-row>
+                        <ion-col>
+                          <b>Blockchain State</b>
+                        </ion-col>
+                      </ion-row>
+                    </ion-grid>
+                    <div class="item"><span>Current Blockchain Height:</span>
+                      {{rootApp.daemon_response.result.stableheight||0}}</div>
+                    <div class="item"><span>Avg. Block Time:</span>
+                      {{rootApp.daemon_response.result.averageblocktime50||0}}s</div>
+                  </div>
+                  <!--
+                  {{ rootApp.settings_laoded | json }}
+                  -->
+                </ion-card-content>
+              </ion-card>
             
-            
-            <div class="item"><span>Current Game Pool:</span> {{rootApp.onChain_value(rootApp.settings_laoded.balance_shared_pool)}} DERO</div>
-            <div class="item"><span><span class="excile">EXCELENT</span> Cards (>95% card power, eligable for reward):</span> {{rootApp.settings_laoded.stats_excelent_cards||0}}</div>
-            <div class="item"><span>Current Redeemable Reward Per <span class="excile">EXCELENT</span> Card:</span> ~{{(rootApp.display_avarage_reward())}} DERO</div>
-            <div class="item"><span><span class="excile">EXCELENT</span> Cards Reward Redeemable Each:</span> {{rootApp.settings_laoded.variable_redeem_offset||0}} blocks</div>
-            <div class="item"><span>Total Planets Colonized:</span> {{rootApp.settings_laoded.stats_planet_counter||0}}</div>
-            
-            <br/>
-            <div *ngIf="rootApp.daemon_response">
-              <ion-grid>
-                <ion-row>
-                  <ion-col>
-                    <b>Blockchain State</b>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-              <div class="item"><span>Current Blockchain Height:</span>
-                {{rootApp.daemon_response.result.stableheight||0}}</div>
-              <div class="item"><span>Avg. Block Time:</span>
-                {{rootApp.daemon_response.result.averageblocktime50||0}}s</div>
-            </div>
-            <!--
-            {{ rootApp.settings_laoded | json }}
-            -->
-          </ion-card-content>
-        </ion-card>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
         
         <ion-card color="light">
           <ion-card-content>
-            <iframe width="100%" height="315" src="https://www.youtube.com/embed/-3wagBUybBI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <iframe width="100%" height="285" src="https://www.youtube.com/embed/usg-eKfKhnY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             <br/>
             <ion-button fill="solid" size="large" expand="block" routerLink="/app/faq">
               <ion-icon slot="start" name="information-circle-outline"></ion-icon> View Game Tutorial
+            </ion-button>
+            <ion-button fill="solid" size="large" color="warning" expand="block" (click)="rootApp.donate()">
+              <ion-icon slot="start" name="heart"></ion-icon> Donate
             </ion-button>
           </ion-card-content>
         </ion-card>
@@ -110,7 +124,7 @@
         </ion-card>
         -->
       </ion-col>
-      <ion-col size="4">
+      <ion-col size="3">
         
         <ion-card color="light" class="welcome">
           <ion-card-content>

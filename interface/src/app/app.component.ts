@@ -68,15 +68,17 @@ export class AppComponent {
     variable_enchant_precent: '20',
 
     stats_excelent_cards:     '0',
+    stats_planet_counter:     '0',
 
     balance_dev_fee:          '0',
-    balance_shared_pool:      '0'
+    balance_shared_pool:      '0',
+    admin:                    'none'
   };
 
   public latest_tx_count = 0;
   public latest_txs = [];
 
-  public contract = '1a06797d8427df0644c6834b591d9a4f5332e7a4f6eb79f625bae5dabf15d394';
+  public contract = '9b5a590c17e54204e60a465016ef8073ff5388bdf4af72fcf1689da5117e56a7';
   public contract_response = null;
   public variables = [''];
   public active_method = null;
@@ -149,6 +151,40 @@ export class AppComponent {
 
   }
   // putOnSell
+
+  async donate() {
+    const alert = await this.alertController.create({
+      header: 'Enter amount you want to donate <3',
+      inputs: [
+        {
+          name: 'price',
+          type: 'number',
+          placeholder: 'Enter amount you want to donate (in DERO)...'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'warning',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Proceed',
+          handler: (ev) => {
+            if ( ev.price > 0 ) {
+              this.execute_command('Donate', {
+
+              }, ev.price * 1000000000000);
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
 
   async putOnSell(planet) {
     const alert = await this.alertController.create({
@@ -242,8 +278,8 @@ export class AppComponent {
           handler: (ev) => {
             if ( ev.moto.length > 0 ) {
               this.execute_command('SectorSetMoto', {
-                sector_x: parseInt(this.onChain_position(x), 10),
-                sector_y: parseInt(this.onChain_position(y), 10),
+                sector_x: this.onChain_position(x),
+                sector_y: this.onChain_position(y),
                 moto: ev.moto
               }, this.settings_laoded.variable_sector_moto_fee);
             }
@@ -330,8 +366,8 @@ export class AppComponent {
 
   public display_avarage_reward() {
     if ( this.settings_laoded ) {
-      const excel_cards = (this.settings_laoded.stats_excelent_cards === 0) ? 1 : this.settings_laoded.stats_excelent_cards;
-
+      const excel_cards = (this.settings_laoded.stats_excelent_cards === '0') ? 1 : this.settings_laoded.stats_excelent_cards;
+      // console.log(this.settings_laoded.balance_shared_pool, excel_cards, this.settings_laoded.variable_redeem_precent);
       return this.onChain_value(
         (
           (this.settings_laoded.balance_shared_pool / (parseInt(excel_cards, 10) + 0))
@@ -572,7 +608,7 @@ export class AppComponent {
           setoff.vRarityAbsolute = 100;
         }
 
-        const rarity_chance = 1;
+        const rarity_chance = 5;
         setoff.RARECloudiness = Math.floor( parseInt(setoff.RARECloudiness + rarity_chance /*chance %*/, 10) / 100 );
         setoff.RARECold = Math.floor( parseInt(setoff.RARECold + rarity_chance /*chance %*/, 10) / 100 );
         setoff.RAREOcean = Math.floor( parseInt(setoff.RAREOcean + rarity_chance /*chance %*/, 10) / 100 );
@@ -644,7 +680,7 @@ export class AppComponent {
   public objectToString(o) {
     Object.keys(o).forEach(k => {
       if (typeof o[k] === 'object') {
-        return toString(o[k]);
+        return o[k].toString();
       }
       o[k] = '' + o[k];
     });
@@ -758,6 +794,50 @@ export class AppComponent {
   public reloadTXs() {
     this.latest_tx_count = 0;
     // public latest_txs = [];
+
+    const ray = [];
+    const ray_errors = [];
+    for (let i = 0; i < this.latest_txs.length; i++) {
+      ray.push(this.latest_txs[i].response.result.tx_hash_list[0]);
+      ray_errors.push(this.latest_txs[i].response.result.tx_hash_list[0] + '_error');
+    }
+
+    const params = {'txs_hashes': ray};
+
+    const data = JSON.stringify(params);
+
+    // console.log('init');
+    this.http.post(this.daemon + '/gettransactions', data)
+    .toPromise()
+    .then(responseAfterSuccess => {
+      const subj: any = <any>responseAfterSuccess;
+      if ( subj.status === 'OK' && subj.txs ) {
+        for (let j = 0; j < subj.txs.length; j++) {
+          this.latest_txs[j].status = subj.txs[j];
+        }
+      }
+    });
+
+    const paramsc = {'txs_hashes': [this.contract], 'sc_keys': ray_errors};
+
+    const datac = JSON.stringify(paramsc);
+
+    if ( ray_errors.length ) {
+      this.http.post(this.daemon + '/gettransactions', datac)
+      .toPromise()
+      .then(responseAfterSuccess => {
+        const subj: any = <any>responseAfterSuccess;
+        if ( subj.status === 'OK' && subj.txs && this.latest_txs && ray ) {
+          for (let j = 0; j < ray_errors.length; j++) {
+            this.latest_txs[j].error = subj.txs[0].sc_keys[ray_errors[j]];
+          }
+        }
+      });
+    }
+
+
+    console.log( this.latest_txs );
+
   }
 
   public async view_contract() {
@@ -780,6 +860,7 @@ export class AppComponent {
       'variable_dev_fee',
       'variable_redeem_offset',
       'variable_redeem_precent',
+      'variable_enchant_precent',
 
       'balance_dev_fee',
       'balance_shared_pool'

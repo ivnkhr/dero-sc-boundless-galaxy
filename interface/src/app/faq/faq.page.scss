@@ -26,3 +26,16 @@
     padding-right: 4px;
   }
 }
+.dpad{
+  img{
+    display: block;
+    text-align: center;
+    margin: 0 auto;
+    height: 100px;
+    border: 2px solid #666;
+    &:hover{
+      cursor: pointer;
+      height: auto;
+    }
+  }
+}

@@ -15,53 +15,8 @@
 
   <ion-grid>
     <ion-row>
-      <ion-col size="12">
-        <ion-card color="light">
-          <ion-card-header>
-            <ion-card-title>Contract Address</ion-card-title>
-          </ion-card-header>
-        
-          <ion-card-content>
-            <ion-item color="dark">
-              <ion-label position="stacked">Enter <b>smart contract (SCID)</b> you want to work with</ion-label>
-              <ion-input [(ngModel)]="rootApp.contract"></ion-input>
-            </ion-item>
-            <br/>
-            <ion-button fill="solid" expand="block" (click)="rootApp.load_game_settings()">
-              <ion-icon slot="start" name="code-download"></ion-icon> Fetch
-            </ion-button>
-            <ion-button *ngIf="rootApp.contract_response" fill="solid" expand="block" (click)="rootApp.view_contract()">
-              <ion-icon slot="start" name="code"></ion-icon> View Contract Source
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-    <ion-row>
       <ion-col sizeXs="12" sizeSm="12" sizeMd="6">
-        <ion-card color="light">
-          <ion-card-header>
-            <ion-card-title>Wallet / Interact</ion-card-title>
-            <ion-text color="{{AgentStatusColors[rootApp.wallet_status]}}">{{AgentStatus[rootApp.wallet_status]}}</ion-text>
-          </ion-card-header>
-        
-          <ion-card-content>
-            <ion-item color="dark">
-              <ion-label position="stacked">Default <b>wallet</b> ip address (with port number)</ion-label>
-              <ion-input [(ngModel)]="rootApp.wallet"></ion-input>
-            </ion-item>
-            <br/>
-            <ion-button fill="solid" expand="block" (click)="rootApp.ping_wallet()">
-              <ion-icon slot="start" name="refresh-circle"></ion-icon>
-              Ping
-            </ion-button>
-            <br/>
-            <div *ngIf="rootApp.wallet_response">
-              <div *ngFor="let item of rootApp.wallet_response.result | keyvalue"><b>{{item.key}}</b>: {{item.value}}</div>
-            </div>
-          </ion-card-content>
-        </ion-card>
-        
+      
         <ion-card color="light">
           <ion-card-header>
             <ion-card-title>Authorization</ion-card-title>
@@ -95,6 +50,55 @@
               Logout
             </ion-button>
             
+          </ion-card-content>
+        </ion-card>
+      
+      </ion-col>
+      <ion-col sizeXs="12" sizeSm="12" sizeMd="6">
+        <ion-card color="light">
+          <ion-card-header>
+            <ion-card-title>Contract Address</ion-card-title>
+          </ion-card-header>
+        
+          <ion-card-content>
+            <ion-item color="dark">
+              <ion-label position="stacked">Enter <b>smart contract (SCID)</b> you want to work with</ion-label>
+              <ion-input [(ngModel)]="rootApp.contract"></ion-input>
+            </ion-item>
+            <br/>
+            <ion-button fill="solid" expand="block" (click)="rootApp.load_game_settings()">
+              <ion-icon slot="start" name="code-download"></ion-icon> Fetch
+            </ion-button>
+            <ion-button *ngIf="rootApp.contract_response" fill="solid" expand="block" (click)="rootApp.view_contract()">
+              <ion-icon slot="start" name="code"></ion-icon> View Contract Source
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col sizeXs="12" sizeSm="12" sizeMd="6">
+        
+        <ion-card color="light">
+          <ion-card-header>
+            <ion-card-title>Wallet / Interact</ion-card-title>
+            <ion-text color="{{AgentStatusColors[rootApp.wallet_status]}}">{{AgentStatus[rootApp.wallet_status]}}</ion-text>
+          </ion-card-header>
+        
+          <ion-card-content>
+            <ion-item color="dark">
+              <ion-label position="stacked">Default <b>wallet</b> ip address (with port number)</ion-label>
+              <ion-input [(ngModel)]="rootApp.wallet"></ion-input>
+            </ion-item>
+            <br/>
+            <ion-button fill="solid" expand="block" (click)="rootApp.ping_wallet()">
+              <ion-icon slot="start" name="refresh-circle"></ion-icon>
+              Ping
+            </ion-button>
+            <br/>
+            <div *ngIf="rootApp.wallet_response">
+              <div *ngFor="let item of rootApp.wallet_response.result | keyvalue"><b>{{item.key}}</b>: {{item.value}}</div>
+            </div>
           </ion-card-content>
         </ion-card>
         

@@ -4,24 +4,65 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content padding>
+<ion-content padding class="dpad">
+
+  <br/>
+
+  <div class="faq-box">
+    <b>Boundless Galaxy - blockchain based trading card game</b>
+    <p>
+      <b>EXPLORE</b> - endless galaxies and discover different planets and players<br/>
+      <b>COLONIZE</b> - free slots and expand your empire<br/>
+      <b>ENCHANT</b> - your planets to <span class="excile">excellence</span> and start redeeming real <span class="excile"><b>DERO</b></span> rewards<br/>
+      <b>TRADE</b> - your planet collection with others<br/>
+      <br/>
+      All <span class="excile">DERO</span> sent to this contract are going to the shared pool and<br/>All <span class="excile">EXCELENT</span> card are eligable to redeem percentage (y%) from this pool (each x blocks)
+    </p>
+  </div>
+      
+  <br/><br/>
 
   <div class="faq-box">
     <b>Getting Started: Web Version & No Additional Browser Extensions</b>
-    <p>1</p>
+    <p>
+      1. Run your dero wallet and daemon, follow <a href="https://git.dero.io/DeroProject/dvm_doc/src/master/lottery_SC_guide.md" target="_blank">instructions here</a><br/>
+      2. Goto <a href="http://plrs.pro/galaxy" target="_blank">Boundless Galaxy dApp page</a> and navigate to <b>Settings</b> tab<br/>
+      3. Without additional plugins you will use wallet with curl manualy, so only daemon connection is important<br/>
+      Enter your local daemon address or enter remotely hosted deamon address <b>http://37.139.4.77:30306</b><br/>
+      <img src="./assets/tutors/getstart-01.png"/><br/>
+      4. Now you are ready to start...<br/>
+      <br/>
+      Blockchain interaction will be manual, but dApp will provide a snippet for each action<br/>
+      <img src="./assets/tutors/inter-manual.png"/>
+    </p>
   </div>
 
   <div class="faq-box">
     <b>Getting Started: Web Version & Chrome Extensions</b>
-    <p>1</p>
+    <p>
+      1. Run your dero wallet and daemon, follow <a href="https://git.dero.io/DeroProject/dvm_doc/src/master/lottery_SC_guide.md" target="_blank">instructions here</a><br/>
+      2. Install <a href="https://chrome.google.com/webstore/detail/dero-truesight/kikaglhemfbdnffkndmdlibodmjmjdmb" target="_blank">Dero Truesight</a> plugin for chrome or <a href="https://chrome.google.com/webstore/detail/moesif-orign-cors-changer/digfbfaphojjndkpccljibejjbppifbc" target="_blank">Moesif Orign & CORS Changer</a><br/>
+      3. We will use <b>Truesight</b> in this example, for Moesif no additional configuration needed<br/>
+      4. Enter wallet and daemon endpoint into <b>Truesight</b> options<br/>
+      <img src="./assets/tutors/getstart-02.png"/><br/>
+      5. Goto <a href="http://plrs.pro/galaxy" target="_blank">Boundless Galaxy dApp page</a> and navigate to <b>Settings</b> tab<br/>
+      Enter your local wallet and daemon address wich are specified in <b>Truesight</b><br/>
+      <img src="./assets/tutors/getstart-03.png"/><br/>
+      6. Now you are ready to start...<br/>
+      <br/>
+      Truesight will protect you from sending unwanted transactions<br/>
+      <img src="./assets/tutors/inter-true.png"/><br/>
+      You will be able to check status of your interactions in <b>Latest TX`s</b> tab<br/>
+      <img src="./assets/tutors/inter-true-results.png"/>
+    </p>
   </div>
   
   <div class="faq-box">
     <b>Getting Started: Standalone Electron App</b>
-    <p>1</p>
+    <p>Discontinued due too lack of demand.</p>
   </div>
   
-  <br/>
+  <br/><br/>
   
   <div class="faq-box">
     <b>Authorization <i>onchain</i></b>
@@ -43,7 +84,7 @@
     <p>1</p>
   </div>
   
-  <br/>
+  <br/><br/>
   
   <div class="faq-box">
     <b>Galaxy Exploration</b>
@@ -65,7 +106,7 @@
     <p>1</p>
   </div>
 
-  <br/>
+  <br/><br/>
   
   <div class="faq-box">
     <b>Your Posessions</b>
@@ -102,15 +143,19 @@
     <p>1</p>
   </div>
 
-  <br/>
+  <br/><br/>
 
   <div class="faq-box">
     <b>Supporting This Project</b>
     <p>
-      Follow me on twitter: @plrspro<br/>
+      Follow me on twitter: <a href="https://twitter.com/plrspro" target="_blank">@plrspro</a><br/>
       <br/>
-      DERO: <br/>
-      BTC: 1LDEmWohUTNR5gPHtmYCBc7HfDti296qbG<br/>
+      DERO: <b>dERodvQrEpaHgZQSSB6LKdMdLA7kZVpvXGZmVE62Efcpbp9HerMmhUNLWZGxs9W4xtUNHr9iwM9cuHiqzjCrxN8W35ZsThuANs</b><br/>
+      BTC: <b>1LDEmWohUTNR5gPHtmYCBc7HfDti296qbG</b><br/>
+      <br/>
+      <ion-button fill="solid" size="small" color="warning" expand="block" (click)="rootApp.donate()">
+        <ion-icon slot="start" name="heart"></ion-icon> Donate
+      </ion-button>
     </p>
   </div>
   

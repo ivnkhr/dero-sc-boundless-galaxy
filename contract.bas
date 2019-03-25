@@ -3,7 +3,8 @@
 	`Boundless Galaxy` @plrspro
 	
 	General notes:
-	none
+	FOMO TCG
+	EXPLORE, COLONIZE, ENCHANT, TRADE
 
 */
 
@@ -87,6 +88,7 @@
 
 /* Service Functions and Utility */
 
+// Shows debug message in daemon
 Function Info(info_message String) Uint64 
 
 	01 DIM txid as String
@@ -101,11 +103,11 @@ Function Info(info_message String) Uint64
 	70  PRINTF "  + TXID: %s" txid
 	80  PRINTF "  +-------------------+  " 
 	
-	
 	999 RETURN 0
 End Function 
 
 
+// Register an error, stores it on blockchain
 Function Error(error_message String) Uint64 
 
 	01 DIM txid as String
@@ -119,9 +121,27 @@ Function Error(error_message String) Uint64
 	60  PRINTF "  +-----[ ERROR ]-----+  " 
 	70  PRINTF "  + TXID: %s" txid
 	80  PRINTF "  +-------------------+  " 
+	90 STORE(TXID() + "_error", error_message) // Only for educational purposes, storing error for each tx should be extreemly unreasonable
 	
 	
-	999 RETURN 1
+	999 RETURN 0
+End Function 
+
+
+// Return value back to signer if error happened
+Function ErrorValue(error_message String, value Uint64) Uint64 
+
+	01 DIM signer as String
+	02 LET signer = SIGNER()
+	03 SEND_DERO_TO_ADDRESS(signer, value)
+	
+	10  PRINTF "  +-------------------+  " 
+	20  PRINTF "  + Refunding: %s" signer
+	30  PRINTF "  + With: %d mDERO" value
+	40  PRINTF "  +-------------------+  " 
+	
+	
+	999 RETURN Error(error_message)
 End Function 
 
 
@@ -143,10 +163,21 @@ Function Initialize() Uint64
 	18 STORE("balance_dev_fee", 0)
 	19 STORE("balance_shared_pool", 0)
 	
-	20 AdminSeedSector(1000000000000000/2, 1000000000000000/2)
+	// 20 AdminSeedSector(1000000000000000/2, 1000000000000000/2)
+	
 	
 	999 RETURN Info("Contract Successfully Deployed")
 End Function 
+
+
+// Donations directly going into dev pool
+Function Donate(value Uint64) Uint64
+
+	10 STORE("balance_dev_fee", LOAD("balance_dev_fee") + value)
+	
+	
+	999 RETURN Info("Thank you so much for you donation <3")
+End Function
 
 
 // Stores your correct "DERO" address to fix testnet dETo dERo confusion
@@ -162,10 +193,13 @@ End Function
 // Calculate Redeemable amount for EXCELENT cards
 Function CalculateReward() Uint64
 
-	01 DIM reward as Uint64
+	01 DIM reward, cards as Uint64
 	02 LET reward = 0
-
-	10 LET reward = ((LOAD("balance_shared_pool") / (LOAD("stats_excelent_cards") + 1) ) * LOAD('variable_redeem_precent')) / 100
+	03 LET cards = LOAD("stats_excelent_cards")
+	05 IF cards > 0 THEN GOTO 10
+	06 LET cards = 1
+	
+	10 LET reward = ((LOAD("balance_shared_pool") / (cards + 0) ) * LOAD('variable_redeem_precent')) / 100
 	
 	20 Info("Current aproax. reward is " + reward)
 
@@ -276,10 +310,11 @@ End Function
 
 /* Contract Core Functions */
 
+// Set moto message for galaxy sector
 Function SectorSetMoto(sector_x Uint64, sector_y Uint64, moto String, value Uint64) Uint64 
 
 	10 IF value >= LOAD("variable_sector_moto_fee") THEN GOTO 20
-	11 RETURN Error("Unpermited Action. Insufficient `value` attached to transaction.")
+	11 RETURN ErrorValue("Unpermited Action. Insufficient `value` attached to transaction.", value)
 	
 	20 STORE("moto_" + sector_x + ":" + sector_y, moto)
 
@@ -289,6 +324,7 @@ Function SectorSetMoto(sector_x Uint64, sector_y Uint64, moto String, value Uint
 End Function
 
 
+// Set username to be displayed across dApp
 Function UserSetAlias(new_name String) Uint64 
 
 	10 STORE(SIGNER() + "_nick", new_name)
@@ -298,11 +334,12 @@ Function UserSetAlias(new_name String) Uint64
 End Function
 
 
+// Colonize free slot in sector
 Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64, value Uint64) Uint64
 	
 	01 IF value >= LOAD("variable_colonize_fee") THEN GOTO 10
 	02 IF ADDRESS_RAW(LOAD("admin")) == ADDRESS_RAW(SIGNER()) THEN GOTO 10
-	03 RETURN Error("Unpermited Action. Insufficient `value` attached to transaction.")
+	03 RETURN ErrorValue("Unpermited Action. Insufficient `value` attached to transaction.", value)
 	
 	// Initialize user stack if its his 1st planet
 	10 DIM user as String
@@ -321,7 +358,7 @@ Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64, 
 	// Check if slot is free
 	50 IF EXISTS(planet_position + "/Owner") == 0 THEN GOTO 60
 	51 IF LOAD(planet_position + "/Owner") == "" THEN GOTO 60
-	52 RETURN Error("Unpermited Action. Planet slot is holded.")
+	52 RETURN ErrorValue("Unpermited Action. Planet slot is holded.", value)
 	
 	// All checkup passed now we can generate planet
 	
@@ -546,7 +583,7 @@ Function PlanetSetDesc(position_x Uint64, position_y Uint64, position_z Uint64, 
 End Function
 
 
-// Puts planet on sale, so anyone can buy it from user
+// Puts planet on sale, so anyone can buy it from you
 Function PlanetSellOut(position_x Uint64, position_y Uint64, position_z Uint64, price Uint64) Uint64
 
 	01 DIM planet_position as String
@@ -574,13 +611,13 @@ Function PlanetBuyIn(position_x Uint64, position_y Uint64, position_z Uint64, va
 	02 LET planet_position = "" + position_x + ":" + position_y + ":" + position_z
 
 	10 IF EXISTS(planet_position + "/Owner") == 1 THEN GOTO 20
-	11 RETURN Error("Unpermited Action. Planet does not exist.")
+	11 RETURN ErrorValue("Unpermited Action. Planet does not exist.", value)
 	
 	20 IF value > 0 THEN GOTO 30 // To bypass 0 OnSale value, wich corresponds to not being set on sale
 	21 RETURN Error("Unpermited Action. Value should be more then 0.")
 	
 	30 IF( value >= LOAD(planet_position + "/OnSale") ) THEN GOTO 40
-	31 RETURN Error("Unpermited Action. Card price is higher then youve payed.")
+	31 RETURN ErrorValue("Unpermited Action. Card price is higher then you`ve payed.", value)
 	
 	40 PRINTF " --- "
 

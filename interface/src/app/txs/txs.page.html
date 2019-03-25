@@ -45,6 +45,13 @@
               <div class="wordwrap">
               {{instance.response.result.tx_hash_list[0]}}
               </div>
+              <hr/>
+              <div *ngIf="!instance.status" style="color: gray;">TX havent reached the network yet</div>
+              <div *ngIf="instance.status && instance.status.in_pool" style="color: orange;">TX waiting to be mined (in mempool)</div>
+              <div *ngIf="instance.status && instance.status.block_height>0" style="color: black;">TX mined on block ({{instance.status.block_height}})</div>
+              <div *ngIf="instance.status && instance.status.block_height==0" style="color: red;">TX not mined, check daemon for details</div>
+              <div *ngIf="instance.status && instance.status.block_height>0 && instance.error.length==0" style="color: green;">SC executed successfully</div>
+              <div *ngIf="instance.status && instance.status.block_height>0 && instance.error.length>0" style="color: red;">SC failed with message: {{instance.error}}</div>
             </ion-col>
             <ion-col size="3">
               <b>{{instance.request.params.sc_tx.entrypoint}}</b>
@@ -59,6 +66,10 @@
           </ion-row>
         </ng-container>
       </ion-grid>
+      
+      <ion-button expand="block" size="medium" fill="solid" (click)="rootApp.reloadTXs()">
+        <ion-icon slot="start" name="refresh-circle"></ion-icon> Refresh List
+      </ion-button>
       
     </ion-label>
   </ion-item>

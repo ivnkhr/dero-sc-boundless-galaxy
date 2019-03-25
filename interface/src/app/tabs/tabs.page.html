@@ -22,9 +22,9 @@
       <ion-label>Possessions</ion-label>
     </ion-tab-button>
     
-    <ion-tab-button tab="txs" *ngIf="rootApp.wallet_status!=0">
+    <ion-tab-button tab="txs" [hidden]="rootApp.wallet_status==0">
       <ion-icon name="flash"></ion-icon>
-      <ion-label>Latest TX`s <span class="txs" *ngIf="rootApp.latest_tx_count>0">{{rootApp.latest_tx_count}}</span></ion-label>
+      <ion-label>Latest TX`s <span class="txs" [hidden]="rootApp.latest_tx_count===0">{{rootApp.latest_tx_count}}</span></ion-label>
     </ion-tab-button>
     
     <ion-tab-button tab="settings">
