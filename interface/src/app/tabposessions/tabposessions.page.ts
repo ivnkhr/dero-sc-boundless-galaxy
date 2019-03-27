@@ -139,7 +139,10 @@ export class TabposessionsPage implements OnInit, AfterViewInit {
               if ( item !== null ) {
                 item.i = j;
                 // initPlanet('planetFocus' + j, 140, item);
-                this.results.push(item);
+                // console.log(item.txid);
+                if ( this.results.find(obj => obj.txid === item.txid) === undefined ) {
+                  this.results.push(item);
+                }
               }
             }
             this.search_status = 2;

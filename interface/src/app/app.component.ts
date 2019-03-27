@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef  } from '@angular/core';
+import { Component, ChangeDetectorRef, HostListener } from '@angular/core';
 
 import { Storage } from '@ionic/storage';
 import { Platform, LoadingController, ToastController, AlertController } from '@ionic/angular';
@@ -91,6 +91,74 @@ export class AppComponent {
 
   public loadingState = null;
   public block_timer = null;
+
+  // TODO Admin capabilities
+  // AdminSetVariable
+
+  @HostListener('document:keyup', ['$event'])
+    async handleDeleteKeyboardEvent(event: KeyboardEvent) {
+      if (event.key === 'Home') {
+
+        const alert = await this.alertController.create({
+          header: 'Admin Features',
+          buttons: [
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'warning',
+              handler: () => {
+                console.log('Confirm Cancel');
+              }
+            }, {
+              text: 'AdminSetVariable',
+              handler: (ev) => {
+                this.adminSetVar();
+              }
+            }
+          ]
+        });
+
+        await alert.present();
+
+      }
+    }
+
+  async adminSetVar() {
+
+    const alert = await this.alertController.create({
+      header: 'AdminSetVariable',
+      inputs: [
+        {
+          name: 'variable',
+          type: 'string',
+          placeholder: 'Enter variable name (without variable_)...'
+        },
+        {
+          name: 'new_value',
+          type: 'string',
+          placeholder: 'Enter new value...'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'warning',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Proceed',
+          handler: (ev) => {
+            this.execute_command('AdminSetVariable', ev, 0);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+
+  }
 
   public sendMessage(room, message) {
     if ( this.chat_message.length > 0 ) {
