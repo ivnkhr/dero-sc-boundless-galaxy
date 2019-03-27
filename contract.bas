@@ -6,6 +6,8 @@
 	FOMO TCG
 	EXPLORE, COLONIZE, ENCHANT, TRADE
 
+	Officially hosted over http://galaxy.plrs.pro/
+
 */
 
 /*
