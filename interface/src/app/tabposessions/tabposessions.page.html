@@ -47,7 +47,7 @@
             <b>Enchanting Process</b>
             
             <div class="description">
-                describe enchantment process
+    <p>By pressing <b>Enchant</b> your planet will be selected (lets name it A) and youll be able to select another planet (lets name it B). After transaction executed planet B will be permamentaly destroyed and all of its 9 attribues will be added to planet A with a rate of ({{rootApp.settings_laoded.variable_enchant_precent}}%).<br/>For example planet A (Darkness attribute = 85) and B (Darkness attribute = 75).<br/>After B is destroyed and burned, planet A will now have 85 + (65*20%) = 85 + 13 = 98 and planet A darkness attribute will become absolute.</p>
             </div>
             <br/>
             
@@ -187,7 +187,7 @@
                           </ion-button>
                           
                           <ion-button fill="solid" color="tertiary" size="small" expand="block" (click)="enchant(planet_focus.planet_position)">
-                            <ion-icon slot="start" name="flask"></ion-icon> Enchance Card
+                            <ion-icon slot="start" name="flask"></ion-icon> Enchant Card
                           </ion-button>
                           
                           <ion-button fill="solid" size="small" color="warning" *ngIf="planet_focus && planet_focus.Owned && !planet_focus.OnSale" expand="block" (click)="this.rootApp.putOnSell(planet_focus)">
@@ -195,7 +195,7 @@
                           </ion-button>
                             
                           <ion-button fill="solid" size="small" color="warning" *ngIf="planet_focus && planet_focus.Owned && planet_focus.OnSale" expand="block" (click)="this.rootApp.putOnSell(planet_focus)">
-                            <ion-icon slot="start" name="wallet"></ion-icon> On Sale ! Current Price: {{this.rootApp.onChain_value(planet_focus.OnSale)}} DERO
+                            <ion-icon slot="start" name="wallet"></ion-icon> On Sale ! {{this.rootApp.onChain_value(planet_focus.OnSale)}} DERO
                           </ion-button>
                           
                         </div>
@@ -213,7 +213,7 @@
                       <div *ngIf="!planet_focus.Owned">
                         
                         <ion-button *ngIf="planet_focus.OnSale" fill="solid" color="warning" size="small" expand="block" (click)="null">
-                          <ion-icon slot="start" name="cart"></ion-icon> Buy Card ({{planet_focus.OnSale}} DERO)
+                          <ion-icon slot="start" name="cart"></ion-icon> Buy Card ! {{this.rootApp.onChain_value(planet_focus.OnSale)}} DERO
                         </ion-button>
                         
                       </div>

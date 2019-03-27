@@ -38,4 +38,15 @@
       height: auto;
     }
   }
+  .cc{
+    text-align: center;;
+  }
+  img.plain{
+    width: 15%;
+    height: auto;
+    &:hover{
+      width: 30%;
+    }
+    display: inline-block;
+  }
 }

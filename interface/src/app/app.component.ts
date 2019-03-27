@@ -60,12 +60,12 @@ export class AppComponent {
   public wallet_address = '';
 
   public settings_laoded: any = <any>{
-    variable_colonize_fee:    '1000000000000',
+    variable_colonize_fee:    '2000000000000',
     variable_sector_moto_fee: '500000000000', // Default value, may vary
     variable_dev_fee:         '5',
-    variable_redeem_offset:   '10',
+    variable_redeem_offset:   '100',
     variable_redeem_precent:  '5',
-    variable_enchant_precent: '20',
+    variable_enchant_precent: '25',
 
     stats_excelent_cards:     '0',
     stats_planet_counter:     '0',
@@ -188,7 +188,7 @@ export class AppComponent {
 
   async putOnSell(planet) {
     const alert = await this.alertController.create({
-      header: 'Set price for this Card',
+      header: 'Set price for this Card. Setting 0 will remove card from sale.',
       inputs: [
         {
           name: 'price',
@@ -207,7 +207,7 @@ export class AppComponent {
         }, {
           text: 'Proceed',
           handler: (ev) => {
-            if ( ev.price > 0 ) {
+            if ( ev.price >= 0 ) {
               this.execute_command('PlanetSellOut', {
                 position_x: planet.x,
                 position_y: planet.y,
@@ -570,7 +570,17 @@ export class AppComponent {
           }
 
         });
-
+        /*
+        setoff.RARECloudiness = 95;
+        setoff.RARECold = 98;
+        setoff.RAREOcean = 95;
+        setoff.RARETemperate = 99;
+        setoff.RAREWarm = 95;
+        setoff.RAREHot = 100;
+        setoff.RARESpeckle = 100;
+        setoff.RAREClouds = 99;
+        setoff.RARELightColor = 99;
+        */
         setoff.RARECloudiness = (+setoff.RARECloudiness >= 100 ) ? 100 : +setoff.RARECloudiness;
         setoff.RARECold = (+setoff.RARECold >= 100 ) ? 100 : +setoff.RARECold;
         setoff.RAREOcean = (+setoff.RAREOcean >= 100 ) ? 100 : +setoff.RAREOcean;
@@ -607,6 +617,8 @@ export class AppComponent {
         if ( setoff.vRarityAbsolute >= 100 ) {
           setoff.vRarityAbsolute = 100;
         }
+
+        // setoff.card_power = setoff.vRarityAbsolute;
 
         const rarity_chance = 5;
         setoff.RARECloudiness = Math.floor( parseInt(setoff.RARECloudiness + rarity_chance /*chance %*/, 10) / 100 );

@@ -153,12 +153,12 @@ Function Initialize() Uint64
 	10 STORE("stats_excelent_cards", 0)
 	11 STORE("stats_planet_counter", 0)
 	
-	12 STORE("variable_colonize_fee", 				1 * 1000000000000) 		// 1 DERO
+	12 STORE("variable_colonize_fee", 				2 * 1000000000000) 		// 1 DERO
 	13 STORE("variable_sector_moto_fee", 			1 * 500000000000)		// 1 DERO
 	14 STORE("variable_dev_fee",							5)						// 5% goes to the dev fee
-	15 STORE("variable_redeem_offset",				10) 					// number of blocks between redeems
+	15 STORE("variable_redeem_offset",				100) 					// number of blocks between redeems
 	16 STORE("variable_redeem_precent",				5)						// formula defined in (CalculateReward)
-	17 STORE("variable_enchant_precent",			20)						// percentage of 2nd card stats to be converted into 1st card during echantment process
+	17 STORE("variable_enchant_precent",			25)						// percentage of 2nd card stats to be converted into 1st card during echantment process
 	
 	18 STORE("balance_dev_fee", 0)
 	19 STORE("balance_shared_pool", 0)
@@ -545,14 +545,14 @@ Function PlanetMerge(planet1_x Uint64, planet1_y Uint64, planet1_z Uint64, plane
 	190 STORE(planet1_position + "/card_power", 		CalculateCardPower(planet1_position) )
 	
 	// Increase excelent card count if its card power more then 95%
-	191 IF LOAD(planet1_position + "/card_power") < 95 THEN GOTO 100
+	191 IF LOAD(planet1_position + "/card_power") < 95 THEN GOTO 200
 	192 STORE("stats_excelent_cards", LOAD("stats_excelent_cards") + 1)
 	
-	// Errase 2nd card
+	// Erase 2nd card
 	200 STORE(planet2_position + "/Owner", "")
 	201 STORE("stats_planet_counter", LOAD("stats_planet_counter") - 1)
 	
-	// Remove absolutes count if EXCELENT card is burned
+	// Remove absolutes count if EXCELENT card has been burnt
 	202 IF CalculateCardPower(planet2_position) < 95 THEN GOTO 999
 	203 STORE("stats_excelent_cards", LOAD("stats_excelent_cards") - 1)
 	
@@ -613,24 +613,27 @@ Function PlanetBuyIn(position_x Uint64, position_y Uint64, position_z Uint64, va
 	10 IF EXISTS(planet_position + "/Owner") == 1 THEN GOTO 20
 	11 RETURN ErrorValue("Unpermited Action. Planet does not exist.", value)
 	
-	20 IF value > 0 THEN GOTO 30 // To bypass 0 OnSale value, wich corresponds to not being set on sale
-	21 RETURN Error("Unpermited Action. Value should be more then 0.")
+	20 IF ADDRESS_RAW(LOAD(planet_position + "/Owner")) != ADDRESS_RAW(SIGNER()) THEN GOTO 30
+	21 RETURN Error("Unpermited Action. Planet already belongs to you.")
 	
-	30 IF( value >= LOAD(planet_position + "/OnSale") ) THEN GOTO 40
-	31 RETURN ErrorValue("Unpermited Action. Card price is higher then you`ve payed.", value)
+	30 IF value > 0 THEN GOTO 40 // To bypass 0 OnSale value, wich corresponds to not being set on sale
+	31 RETURN Error("Unpermited Action. Value should be more then 0.")
 	
-	40 PRINTF " --- "
+	40 IF( value >= LOAD(planet_position + "/OnSale") ) THEN GOTO 50
+	41 RETURN ErrorValue("Unpermited Action. Card price is higher then you`ve payed.", value)
+	
+	50 PRINTF " --- "
 
 	// Add into new owner stack list
-	50 LET new_owner = SIGNER()
-	51 LET new_owner_stack_index = 0
-	52 IF EXISTS(new_owner + "_index") == 1 THEN GOTO 54
-	53 STORE(new_owner + "_index", new_owner_stack_index)
-	54 LET new_owner_stack_index = LOAD(new_owner + "_index")
+	60 LET new_owner = SIGNER()
+	61 LET new_owner_stack_index = 0
+	62 IF EXISTS(new_owner + "_index") == 1 THEN GOTO 54
+	63 STORE(new_owner + "_index", new_owner_stack_index)
+	64 LET new_owner_stack_index = LOAD(new_owner + "_index")
 	
 	// Setting new owner for planet
- 	60 STORE(new_owner + "_index_" + new_owner_stack_index, planet_position)
-	61 STORE(new_owner + "_index", stack_index + 1)
+ 	70 STORE(new_owner + "_index_" + new_owner_stack_index, planet_position)
+	71 STORE(new_owner + "_index", stack_index + 1)
 	
 	100 STORE(planet_position + "/Owner", new_owner)
 	101 STORE(planet_position + "/OnSale", 0)
@@ -656,7 +659,7 @@ Function PlanetRedeem(position_x Uint64, position_y Uint64, position_z Uint64) U
 	
 	// Planet is EXCELENT
 	30 IF LOAD(planet_position + "/card_power") >= 95 THEN GOTO 40
-	31 RETURN Error("Unpermited Action. Planet is not eligable for reward.")
+	31 RETURN Error("Unpermited Action. Planet is not eliagable for reward.")
 	
 	40 PRINTF " --- "
 	

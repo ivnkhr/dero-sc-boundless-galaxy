@@ -26,7 +26,7 @@
     <b>Getting Started: Web Version & No Additional Browser Extensions</b>
     <p>
       1. Run your dero wallet and daemon, follow <a href="https://git.dero.io/DeroProject/dvm_doc/src/master/lottery_SC_guide.md" target="_blank">instructions here</a><br/>
-      2. Goto <a href="http://plrs.pro/galaxy" target="_blank">Boundless Galaxy dApp page</a> and navigate to <b>Settings</b> tab<br/>
+      2. Goto <a href="http://galaxy.plrs.pro/app/settings" target="_blank">Boundless Galaxy dApp page</a> and navigate to <b>Settings</b> tab<br/>
       3. Without additional plugins you will use wallet with curl manualy, so only daemon connection is important<br/>
       Enter your local daemon address or enter remotely hosted deamon address <b>http://37.139.4.77:30306</b><br/>
       <img src="./assets/tutors/getstart-01.png"/><br/>
@@ -45,7 +45,7 @@
       3. We will use <b>Truesight</b> in this example, for Moesif no additional configuration needed<br/>
       4. Enter wallet and daemon endpoint into <b>Truesight</b> options<br/>
       <img src="./assets/tutors/getstart-02.png"/><br/>
-      5. Goto <a href="http://plrs.pro/galaxy" target="_blank">Boundless Galaxy dApp page</a> and navigate to <b>Settings</b> tab<br/>
+      5. Goto <a href="http://galaxy.plrs.pro/app/settings" target="_blank">Boundless Galaxy dApp page</a> and navigate to <b>Settings</b> tab<br/>
       Enter your local wallet and daemon address wich are specified in <b>Truesight</b><br/>
       <img src="./assets/tutors/getstart-03.png"/><br/>
       6. Now you are ready to start...<br/>
@@ -59,88 +59,126 @@
   
   <div class="faq-box">
     <b>Getting Started: Standalone Electron App</b>
-    <p>Discontinued due too lack of demand.</p>
+    <p>Discontinued due too lack of demand. But you can build it from source.</p>
   </div>
   
   <br/><br/>
   
   <div class="faq-box">
     <b>Authorization <i>onchain</i></b>
-    <p>1</p>
+    <p>
+      Auth process is essential to unlock personalized features like viewing your empire, setting nickname, modifying planet name, enchant and trade.<br/>
+      All instructions are mentioned on <b>Settings</b> page.
+    </p>
   </div>
   
   <div class="faq-box">
     <b>Setting Your Personal Alias / Nickname <i>onchain</i></b>
-    <p>1</p>
+    <p><b>Change Nick</b> button is availiable on <b>Home</b> tab. This feature will allow to set your nick across all dApp components, chat, galaxy, cards.</p>
+    <img src="./assets/tutors/nick-02.png"/>
   </div>
   
   <div class="faq-box">
     <b>Chatting <u>offchain</u></b>
-    <p>1</p>
+    <p>Chat is avaliable for all users and even unauth. There 2 type of chats General (mostly for trading) on <b>Home</b> tab. And per Section (mostly for casual chatting).
+      <br/><span style="color: orange">Attention!</span> all chat messages are stored on 3rd party AWS service and not stored on chain.</p>
   </div>
   
   <div class="faq-box">
     <b>Refreshing Game Status</b>
-    <p>1</p>
+    <p><ion-button fill="solid" (click)="rootApp.ping_daemon()"><ion-icon slot="start" name="refresh-circle"></ion-icon> Refresh Game State</ion-button>
+      <br/>Refresh button presents in header of each section that requires data from blockchain.<br/>Use it after your interactive txs are mined to see changes.</p>
   </div>
   
   <br/><br/>
   
   <div class="faq-box">
     <b>Galaxy Exploration</b>
-    <p>1</p>
+    <p>There are virtualy endless sectors in <b>Galaxy</b> exploration tab.<br/>Initialy there are no information about sector inhabitancy and its a subject for exploration.<br/>After exploring a new sector it will reflect sector data on galaxy map.</p>
   </div>
 
   <div class="faq-box">
     <b>Sector Exploration</b>
-    <p>1</p>
+    <p>Each sector contain of 7 colonizable orbits, each orbit can be colonized once.<br/>
+    If you want to obtain sertain locked planet, you need to find a way to contact planet owner nad buy it from him.<br/>
+    Each sector also features a chat.
+    </p>
   </div>
 
   <div class="faq-box">
     <b>Sector Set Moto <i>onchain</i></b>
-    <p>1</p>
+    <p>Each sector features a functionality to set a message in top right corner, wich can only be overwritten by paying a certain fee.</p>
   </div>
 
   <div class="faq-box">
     <b>Planet Colonization <i>onchain</i></b>
-    <p>1</p>
+    <p>Each free slot of a sector can be colonized and planet card will be generated.<br/>This card belongs to colonizer and noone can take it from him unless he sets his card on sale.<br/>Detailed description of generation will be provided further...</p>
   </div>
 
   <br/><br/>
   
   <div class="faq-box">
     <b>Your Posessions</b>
-    <p>1</p>
+    <p>In <b>Posessions</b> tab you can see your collection or collection of any known DERO address (other users).<br/>In order to see personalaized options (change desc, enchant, sell) you need to be authorized.
+      <img src="./assets/tutors/posessions.png"/></p>
   </div>
 
   <div class="faq-box">
     <b>Planet Cards</b>
-    <p><span class="excile">EXCELENT</span></p>
+    <p>
+      After slot is colonized a planet will be generated.<br/>
+      There are 4 main components to a card:<br/>
+      1. Name, Owner and Description<br/>
+      2. Rarity / Attributes (Fire, Air, Watter, Magma, Terra, Ice, Light, Mist, Darkness)<br/>
+      3. Excelence / Overall Card Power (Avarage sum of all attributes)<br/>
+      4. Controll buttons (only if you authorized)<br/>
+      <br/>
+      Lets explain rarity more detailed.<br/>
+      If attribute more or equals to 95 it will be marked as absolute attribute and be colored and will have additional star icon.<br/>
+      Having 3 and more absolute attributes will turn your card into <b>RARE</b><br/>
+      More than 6 - <b>LEGENDARY</b><br/>
+      And all 9 - <b>EPIC</b><br/>
+      </p>
+    <br/>
+    <div class="cc">
+    <img class="plain" src="./assets/tutors/common.png"/>
+    <img class="plain" src="./assets/tutors/rare.png"/>
+    <img class="plain" src="./assets/tutors/legend.png"/>
+    <img class="plain" src="./assets/tutors/epicexcel.png"/>
+    </div>
+    <p>
+      If avarage sum of all attributes greater or equal 95 card will recieve <span class="excile">EXCELENT</span> status and youll be able to <b>Redeem</b> portion of contracts shared pool.<br/>
+      Improving planet attributes can be achieved using <b>Enchant</b> functionality (explained below).<br/>
+    </p>
   </div>
 
   <div class="faq-box">
     <b>Planet Description <i>onchain</i></b>
-    <p>1</p>
+    <p>By default each planet will show generic information like population, mass and size, but you can write your own history using <b>Change Description</b> in galaxy or posessions tab.</p>
   </div>
 
   <div class="faq-box">
     <b>Planet Enchantment <i>onchain</i></b>
-    <p>1</p>
+    <p>By pressing <b>Enchant</b> your planet will be selected (lets name it A) and youll be able to select another planet (lets name it B). After transaction executed planet B will be permamentaly destroyed and all of its 9 attribues will be added to planet A with a rate of ({{rootApp.settings_laoded.variable_enchant_precent}}%).<br/>For example planet A (Darkness attribute = 85) and B (Darkness attribute = 75).<br/>After B is destroyed and burned, planet A will now have 85 + (65*20%) = 85 + 13 = 98 and planet A darkness attribute will become absolute.</p>
   </div>
 
   <div class="faq-box">
     <b>Redeeming <span class="excile">EXCELENT</span> Rewards <i>onchain</i></b>
-    <p>1</p>
+    <p>When avarage sum of atributes larger or equal to 95% card gains <span class="excile">EXCELENT</span> status.<br/>Now you can press <b>Redeem</b> and opbain portion of shared pool each {{rootApp.settings_laoded.variable_redeem_precent}} blocks.<br/><br/>Reward formula is (shared pool / amount of excelent cards) / reward percentage<br/>
+    (({{rootApp.onChain_value(rootApp.settings_laoded.balance_shared_pool)}} dero) / ({{rootApp.settings_laoded.stats_excelent_cards}} cards)) / ({{rootApp.settings_laoded.variable_redeem_precent}} %) = {{rootApp.display_avarage_reward()}} dero
+    </p>
   </div>
 
   <div class="faq-box">
     <b>Planet Auction (Setting Your Planet On Sale) <i>onchain</i></b>
-    <p>1</p>
+    <p>If you got lucky and have uniq planet atributes or colonized highly demandable sector, you can put your planet on sale.<br/>Youll be able to put any price you want.
+    <br/>In order to remove card from sale, simply put 0 price.
+    </p>
   </div>
 
   <div class="faq-box">
     <b>Planet Auction (Buing Someone Elses Planet) <i>onchain</i></b>
-    <p>1</p>
+    <p>If someone put card on sale, you can buit if from sector view or posessions view by putting dero address in input field.</p>
   </div>
 
   <br/><br/>

@@ -40,7 +40,7 @@
         </ion-row>
         
         <ng-container *ngIf="rootApp.latest_txs?.length;else no_data_templ">
-          <ion-row *ngFor="let instance of rootApp.latest_txs?.reverse()">
+          <ion-row *ngFor="let instance of rootApp.latest_txs">
             <ion-col size="5">
               <div class="wordwrap">
               {{instance.response.result.tx_hash_list[0]}}
@@ -50,8 +50,8 @@
               <div *ngIf="instance.status && instance.status.in_pool" style="color: orange;">TX waiting to be mined (in mempool)</div>
               <div *ngIf="instance.status && instance.status.block_height>0" style="color: black;">TX mined on block ({{instance.status.block_height}})</div>
               <div *ngIf="instance.status && instance.status.block_height==0" style="color: red;">TX not mined, check daemon for details</div>
-              <div *ngIf="instance.status && instance.status.block_height>0 && instance.error.length==0" style="color: green;">SC executed successfully</div>
-              <div *ngIf="instance.status && instance.status.block_height>0 && instance.error.length>0" style="color: red;">SC failed with message: {{instance.error}}</div>
+              <div *ngIf="instance.status && instance.status.block_height>0 && !instance.error" style="color: green;">SC executed successfully</div>
+              <div *ngIf="instance.status && instance.status.block_height>0 && instance.error && instance.error.length>0" style="color: red;">SC failed with message: {{instance.error}}</div>
             </ion-col>
             <ion-col size="3">
               <b>{{instance.request.params.sc_tx.entrypoint}}</b>

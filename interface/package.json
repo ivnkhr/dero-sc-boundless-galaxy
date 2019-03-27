@@ -5,8 +5,8 @@
   "homepage": "https://ionicframework.com/",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build --base-href / --prod --aot=false --build-optimizer=false",
+    "start": "ng serve --base-href / --prod --port 4400",
+    "build": "ng build --base-href / --prod",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",

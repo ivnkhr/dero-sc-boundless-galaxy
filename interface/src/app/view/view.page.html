@@ -87,8 +87,8 @@
     </div>
     
     <div class="planet-list">
-      <div *ngFor="let planet of items?.reverse(); index as i;" class="ringRarity{{(dataArray[planet])?dataArray[planet].vRarityRate:0}}" [ngClass]="{'hover': hover==planet, 'lock': lock==planet}" (mouseenter) ="mouseEnter(planet)"  (mouseleave) ="mouseLeave(planet)" (click)="mouseClick(planet)">
-        {{i+1}}. {{(dataArray[planet])?dataArray[planet].Name:'- free slot -'}}
+      <div *ngFor="let planet of items; index as i;" class="ringRarity{{(dataArray[planet])?dataArray[planet].vRarityRate:0}}" [ngClass]="{'hover': hover==planet, 'lock': lock==planet}" (mouseenter) ="mouseEnter(planet)"  (mouseleave) ="mouseLeave(planet)" (click)="mouseClick(planet)">
+        {{8-i-1}}. {{(dataArray[planet])?dataArray[planet].Name:'- free slot -'}}
       </div>
     </div>
     
@@ -136,7 +136,7 @@
           ...
         </div>
         <div class="card-power-breakdown-exp" (click)="planet_focus.card_desc=!planet_focus.card_desc">
-          Overall Card Power: {{planet_focus.card_power}}%
+          Overall Card Power: {{planet_focus.vRarityAbsolute}}%
           <span *ngIf="!planet_focus.card_desc">(expand)</span>
           <span *ngIf="planet_focus.card_desc">(hide)</span>
         </div>
@@ -210,7 +210,7 @@
       </ion-button>
 
       <ion-button fill="solid" size="small" color="tertiary" *ngIf="planet_focus && planet_focus.Owned" expand="block" (click)="this.rootApp.enchant_card(planet_focus.planet_position)">
-        <ion-icon slot="start" name="flask"></ion-icon> Enchance Card
+        <ion-icon slot="start" name="flask"></ion-icon> Enchant Card
       </ion-button>
 
       <ion-button fill="solid" size="small" color="warning" *ngIf="planet_focus && planet_focus.Owned && !planet_focus.OnSale" expand="block" (click)="this.rootApp.putOnSell(planet_focus)">
