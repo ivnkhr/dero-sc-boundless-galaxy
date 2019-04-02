@@ -135,7 +135,9 @@ Function ErrorValue(error_message String, value Uint64) Uint64
 
 	01 DIM signer as String
 	02 LET signer = SIGNER()
-	03 SEND_DERO_TO_ADDRESS(signer, value)
+	03 IF EXISTS(signer + "_credit") == 1 THEN GOTO 05
+	04 STORE(signer + "_credit", 0)
+	05 STORE(signer + "_credit", LOAD(signer + "_credit") + value)
 	
 	10  PRINTF "  +-------------------+  " 
 	20  PRINTF "  + Refunding: %s" signer
@@ -145,6 +147,38 @@ Function ErrorValue(error_message String, value Uint64) Uint64
 	
 	999 RETURN Error(error_message)
 End Function 
+
+
+// Redeem error locked funds back
+Function ErrorValueWithdraw() Uint64 
+
+	01 DIM signer as String
+	02 LET signer = SIGNER()
+	03 IF EXISTS(signer + "_credit") == 0 THEN GOTO 999
+	04 SEND_DERO_TO_ADDRESS(signer, LOAD(signer + "_credit"))
+	05 STORE(signer + "_credit", 0)
+
+	999 RETURN Info("Error Funds Successfully Withdrawn Back")
+End Function
+
+
+// Prevent same block execution (hack)
+Function isConcurrentExecution() Uint64
+
+	01 DIM chain_block, user_block, diff as Uint64
+	02 LET chain_block = BLOCK_HEIGHT()
+
+	03 IF EXISTS("user_block_" + SIGNER()) == 1 THEN GOTO 05
+	04 STORE("user_block_" + SIGNER(), 0)
+	
+	05 LET user_block = LOAD("user_block_" + SIGNER())
+	06 STORE("user_block_" + SIGNER(), chain_block)
+	07 LET diff = (chain_block - user_block)
+	08 Info("isConcurrentExecution diff = " + diff)
+	09 RETURN diff
+
+	
+End Function
 
 
 // Technical function executed on contract deployment
@@ -160,7 +194,7 @@ Function Initialize() Uint64
 	14 STORE("variable_dev_fee",							5)						// 5% goes to the dev fee
 	15 STORE("variable_redeem_offset",				100) 					// number of blocks between redeems
 	16 STORE("variable_redeem_precent",				5)						// formula defined in (CalculateReward)
-	17 STORE("variable_enchant_precent",			25)						// percentage of 2nd card stats to be converted into 1st card during echantment process
+	17 STORE("variable_enchant_precent",			35)						// percentage of 2nd card stats to be converted into 1st card during echantment process
 	
 	18 STORE("balance_dev_fee", 0)
 	19 STORE("balance_shared_pool", 0)
@@ -201,7 +235,7 @@ Function CalculateReward() Uint64
 	05 IF cards > 0 THEN GOTO 10
 	06 LET cards = 1
 	
-	10 LET reward = ((LOAD("balance_shared_pool") / (cards + 0) ) * LOAD('variable_redeem_precent')) / 100
+	10 LET reward = ((LOAD("balance_shared_pool") / (cards + 0) ) * LOAD("variable_redeem_precent")) / 100
 	
 	20 Info("Current aproax. reward is " + reward)
 
@@ -317,6 +351,7 @@ Function SectorSetMoto(sector_x Uint64, sector_y Uint64, moto String, value Uint
 
 	10 IF value >= LOAD("variable_sector_moto_fee") THEN GOTO 20
 	11 RETURN ErrorValue("Unpermited Action. Insufficient `value` attached to transaction.", value)
+	12 GOTO 999 // Prevent Execution on same block hack
 	
 	20 STORE("moto_" + sector_x + ":" + sector_y, moto)
 
@@ -339,15 +374,19 @@ End Function
 // Colonize free slot in sector
 Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64, value Uint64) Uint64
 	
-	01 IF value >= LOAD("variable_colonize_fee") THEN GOTO 10
-	02 IF ADDRESS_RAW(LOAD("admin")) == ADDRESS_RAW(SIGNER()) THEN GOTO 10
-	03 RETURN ErrorValue("Unpermited Action. Insufficient `value` attached to transaction.", value)
+	01 IF isConcurrentExecution() != 0 THEN GOTO 10
+	02 RETURN 1 // Prevent Execution on same block hack
+	
+	10 IF value >= LOAD("variable_colonize_fee") THEN GOTO 15
+	11 IF ADDRESS_RAW(LOAD("admin")) == ADDRESS_RAW(SIGNER()) THEN GOTO 15
+	12 RETURN ErrorValue("Unpermited Action. Insufficient `value` attached to transaction.", value)
+	13 GOTO 999 // Prevent Execution on same block hack
 	
 	// Initialize user stack if its his 1st planet
-	10 DIM user as String
-	11 DIM stack_index as Uint64
-	12 LET user = SIGNER()
-	13 LET stack_index = 0
+	15 DIM user as String
+	16 DIM stack_index as Uint64
+	17 LET user = SIGNER()
+	18 LET stack_index = 0
 	
 	20 IF EXISTS(user + "_index") == 1 THEN GOTO 30
 	21 STORE(user + "_index", stack_index)
@@ -356,11 +395,15 @@ Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64, 
 	
 	40 DIM planet_position as String
 	41 LET planet_position = "" + position_x + ":" + position_y + ":" + position_z
+	42 DIM stats_planet_counter, stats_excelent_cards as Uint64
+	43 LET stats_planet_counter = LOAD("stats_planet_counter")
+	44 LET stats_excelent_cards = LOAD("stats_excelent_cards")
 	
 	// Check if slot is free
 	50 IF EXISTS(planet_position + "/Owner") == 0 THEN GOTO 60
 	51 IF LOAD(planet_position + "/Owner") == "" THEN GOTO 60
-	52 RETURN ErrorValue("Unpermited Action. Planet slot is holded.", value)
+	52 RETURN ErrorValue("Unpermited Action. Planet slot is already occupied.", value)
+	53 GOTO 999 // Prevent Execution on same block hack
 	
 	// All checkup passed now we can generate planet
 	
@@ -455,12 +498,12 @@ Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64, 
 	
 	// Increase excelent card count if its card power more then 95%
 	180 IF LOAD(planet_position + "/card_power") < 95 THEN GOTO 200
-	181 STORE("stats_excelent_cards", LOAD("stats_excelent_cards") + 1)
+	181 STORE("stats_excelent_cards", stats_excelent_cards + 1)
 	
 	200 STORE(user+"_index_"+stack_index, planet_position)
 	201 STORE(user+"_index", stack_index + 1)
 	
-	202 STORE("stats_planet_counter", LOAD("stats_planet_counter") + 1)
+	202 STORE("stats_planet_counter", stats_planet_counter + 1)
 	
 	
 	998 StoreSharedPool(value)
@@ -471,31 +514,41 @@ End Function
 // Sacrificing one card to use it attributes (percentage) to enchance another card
 Function PlanetMerge(planet1_x Uint64, planet1_y Uint64, planet1_z Uint64, planet2_x Uint64, planet2_y Uint64, planet2_z Uint64) Uint64
 
-	01 DIM planet1_position, planet2_position as String
-	02 LET planet1_position = "" + planet1_x + ":" + planet1_y + ":" + planet1_z
-	03 LET planet2_position = "" + planet2_x + ":" + planet2_y + ":" + planet2_z
+	01 IF isConcurrentExecution() != 0 THEN GOTO 10
+	02 RETURN 1 // Prevent Execution on same block hack
+
+	10 DIM planet1_position, planet2_position as String
+	11 LET planet1_position = "" + planet1_x + ":" + planet1_y + ":" + planet1_z
+	12 LET planet2_position = "" + planet2_x + ":" + planet2_y + ":" + planet2_z
 
 	// Planet 1 Exists
-	10 IF EXISTS(planet1_position + "/Owner") == 1 THEN GOTO 20
-	11 RETURN Error("Unpermited Action. Planet 1 does not exist.")
-	
+	13 IF EXISTS(planet1_position + "/Owner") == 1 THEN GOTO 20
+	14 RETURN Error("Unpermited Action. Planet 1 does not exist.")
+	15 GOTO 999 // Prevent Execution on same block hack
+		
 	// Planet 1 Belongs To Signer
 	20 IF ADDRESS_RAW(LOAD(planet1_position + "/Owner")) == ADDRESS_RAW(SIGNER()) THEN GOTO 30
 	21 RETURN Error("Unpermited Action. Planet 1 does not belong to you.")
+	22 GOTO 999 // Prevent Execution on same block hack
 
 	// Planet 2 Exists
 	30 IF EXISTS(planet2_position + "/Owner") == 1 THEN GOTO 40
 	31 RETURN Error("Unpermited Action. Planet 2 does not exist.")
+	32 GOTO 999 // Prevent Execution on same block hack
 	
 	// Planet 2 Belongs To Signer
 	40 IF ADDRESS_RAW(LOAD(planet2_position + "/Owner")) == ADDRESS_RAW(SIGNER()) THEN GOTO 50
 	41 RETURN Error("Unpermited Action. Planet 2 does not belong to you.")
+	42 GOTO 999 // Prevent Execution on same block hack
 
 	50 PRINTF " --- "
 
 	51 DIM variable_enchant_precent as Uint64
 	52 LET variable_enchant_precent = LOAD("variable_enchant_precent")
-	53 DIM attr as String
+	53 DIM stats_planet_counter, stats_excelent_cards as Uint64
+	54 LET stats_planet_counter = LOAD("stats_planet_counter")
+	55 LET stats_excelent_cards = LOAD("stats_excelent_cards")
+	56 DIM attr as String
 	
 	// Incrust new stats into 1st card
 	60 LET attr = "/RARECloudiness"
@@ -540,23 +593,28 @@ Function PlanetMerge(planet1_x Uint64, planet1_y Uint64, planet1_z Uint64, plane
 	
 	140 LET attr = "/RARELightColor"
 	141 STORE(planet1_position + attr, LOAD(planet1_position + attr) + ((LOAD(planet2_position + attr) * variable_enchant_precent) / 100))
-	142 IF LOAD(planet1_position + attr) <= 100 THEN GOTO 190
+	142 IF LOAD(planet1_position + attr) <= 100 THEN GOTO 150
 	143 STORE(planet1_position + attr, 100)
 	
+	150 DIM card_power1, card_power2 as Uint64
+	151 LET card_power1 = CalculateCardPower(planet1_position)
+	152 LET card_power2 = CalculateCardPower(planet2_position)
+	
 	// Set newly calculated card power
-	190 STORE(planet1_position + "/card_power", 		CalculateCardPower(planet1_position) )
+	190 STORE(planet1_position + "/card_power", card_power1)
 	
 	// Increase excelent card count if its card power more then 95%
-	191 IF LOAD(planet1_position + "/card_power") < 95 THEN GOTO 200
-	192 STORE("stats_excelent_cards", LOAD("stats_excelent_cards") + 1)
+	191 IF card_power1 < 95 THEN GOTO 200
+	192 STORE("stats_excelent_cards", stats_excelent_cards + 1)
 	
 	// Erase 2nd card
 	200 STORE(planet2_position + "/Owner", "")
-	201 STORE("stats_planet_counter", LOAD("stats_planet_counter") - 1)
+	201 IF stats_planet_counter == 0 THEN GOTO 205
+	202 STORE("stats_planet_counter", stats_planet_counter - 1)
 	
 	// Remove absolutes count if EXCELENT card has been burnt
-	202 IF CalculateCardPower(planet2_position) < 95 THEN GOTO 999
-	203 STORE("stats_excelent_cards", LOAD("stats_excelent_cards") - 1)
+	205 IF card_power2 < 95 THEN GOTO 999
+	206 STORE("stats_excelent_cards", stats_excelent_cards - 1)
 	
 	
 	999 RETURN Info("(PlanetMerge) Successfully Executed")
@@ -571,9 +629,11 @@ Function PlanetSetDesc(position_x Uint64, position_y Uint64, position_z Uint64, 
 
 	10 IF EXISTS(planet_position+"/Owner") == 1 THEN GOTO 20
 	11 RETURN Error("Unpermited Action. Planet does not exist.")
+	12 GOTO 999 // Prevent Execution on same block hack
 	
 	20 IF ADDRESS_RAW(LOAD(planet_position+"/Owner")) == ADDRESS_RAW(SIGNER()) THEN GOTO 30
 	21 RETURN Error("Unpermited Action. Planet does not belong to you.")
+	22 GOTO 999 // Prevent Execution on same block hack
 	
 	30 PRINTF " --- "
 	
@@ -593,9 +653,11 @@ Function PlanetSellOut(position_x Uint64, position_y Uint64, position_z Uint64, 
 
 	10 IF EXISTS(planet_position + "/Owner") == 1 THEN GOTO 20
 	11 RETURN Error("Unpermited Action. Planet does not exist.")
+	12 GOTO 999 // Prevent Execution on same block hack
 	
 	20 IF ADDRESS_RAW(LOAD(planet_position + "/Owner")) == ADDRESS_RAW(SIGNER()) THEN GOTO 30
 	21 RETURN Error("Unpermited Action. Planet does not belong to you.")
+	22 GOTO 999 // Prevent Execution on same block hack
 	
 	30 PRINTF " --- "
 
@@ -614,15 +676,19 @@ Function PlanetBuyIn(position_x Uint64, position_y Uint64, position_z Uint64, va
 
 	10 IF EXISTS(planet_position + "/Owner") == 1 THEN GOTO 20
 	11 RETURN ErrorValue("Unpermited Action. Planet does not exist.", value)
+	12 GOTO 999 // Prevent Execution on same block hack
 	
 	20 IF ADDRESS_RAW(LOAD(planet_position + "/Owner")) != ADDRESS_RAW(SIGNER()) THEN GOTO 30
 	21 RETURN Error("Unpermited Action. Planet already belongs to you.")
+	22 GOTO 999 // Prevent Execution on same block hack
 	
 	30 IF value > 0 THEN GOTO 40 // To bypass 0 OnSale value, wich corresponds to not being set on sale
 	31 RETURN Error("Unpermited Action. Value should be more then 0.")
+	32 GOTO 999 // Prevent Execution on same block hack
 	
 	40 IF( value >= LOAD(planet_position + "/OnSale") ) THEN GOTO 50
 	41 RETURN ErrorValue("Unpermited Action. Card price is higher then you`ve payed.", value)
+	42 GOTO 999 // Prevent Execution on same block hack
 	
 	50 PRINTF " --- "
 
@@ -648,26 +714,37 @@ End Function
 // Redeem `daily` reward from your EXCELENT card
 Function PlanetRedeem(position_x Uint64, position_y Uint64, position_z Uint64) Uint64
 
-	01 DIM planet_position as String
-	02 LET planet_position = "" + position_x + ":" + position_y + ":" + position_z
+	01 IF isConcurrentExecution() != 0 THEN GOTO 10
+	02 RETURN 1 // Prevent Execution on same block hack
+
+	10 DIM planet_position as String
+	11 LET planet_position = "" + position_x + ":" + position_y + ":" + position_z
 
 	// Planet exists
-	10 IF EXISTS(planet_position + "/Owner") == 1 THEN GOTO 20
-	11 RETURN Error("Unpermited Action. Planet does not exist.")
+	12 IF EXISTS(planet_position + "/Owner") == 1 THEN GOTO 20
+	13 RETURN Error("Unpermited Action. Planet does not exist.")
+	14 GOTO 999 // Prevent Execution on same block hack
 	
 	// Planet is yours
 	20 IF ADDRESS_RAW(LOAD(planet_position + "/Owner")) == ADDRESS_RAW(SIGNER()) THEN GOTO 30
 	21 RETURN Error("Unpermited Action. Planet does not belong to you.")
+	22 GOTO 999 // Prevent Execution on same block hack
 	
 	// Planet is EXCELENT
 	30 IF LOAD(planet_position + "/card_power") >= 95 THEN GOTO 40
 	31 RETURN Error("Unpermited Action. Planet is not eliagable for reward.")
+	32 GOTO 999 // Prevent Execution on same block hack
 	
-	40 PRINTF " --- "
+	// Planet redeemable
+	40 IF LOAD(planet_position + "/next_redeem_at") < BLOCK_HEIGHT() THEN GOTO 50
+	41 RETURN Error("Unpermited Action. Planet redeem is still recharging.")
+	42 GOTO 999 // Prevent Execution on same block hack
 	
-	50 STORE(planet_position + "/next_redeem_at", BLOCK_HEIGHT() + LOAD('variable_redeem_offset'))
+	50 PRINTF " --- "
+	
+	60 STORE(planet_position + "/next_redeem_at", BLOCK_HEIGHT() + LOAD("variable_redeem_offset"))
 
-	60 SEND_DERO_TO_ADDRESS(SIGNER(), CalculateReward())
+	70 SEND_DERO_TO_ADDRESS(SIGNER(), CalculateReward())
 	
 	
 	999 RETURN Info("(PlanetRedeem) Successfully Executed")

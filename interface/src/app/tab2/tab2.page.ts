@@ -42,9 +42,18 @@ export class Tab2Page implements OnInit, AfterViewInit {
     this.canNav = false;
     // drawRandom(document.querySelector('.galaxy'), this.x + ':' + this.y);
 
-    (document.querySelector('.galaxy') as HTMLElement).style.backgroundColor =
+    const galaxy = (document.querySelector('.galaxy') as HTMLElement);
+    galaxy.style.backgroundColor =
     '#' + Math.floor((Math.abs(Math.sin(this.x + this.y + 7) * 16777215)) % 16777215).toString(16);
 
+    const el = galaxy;
+
+    galaxy.style.setProperty('--size', (10 + Math.random() * 20) + '%');
+
+    (document.querySelector('body') as HTMLElement).addEventListener('mousemove', (e) => {
+      el.style.setProperty('--x', -e.offsetX + 'px');
+      el.style.setProperty('--y', -e.offsetY + 'px');
+    });
 
     // load state of sectors
     // this.rootApp.storage.ready().then(() => {

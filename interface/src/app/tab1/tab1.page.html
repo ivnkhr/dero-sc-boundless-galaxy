@@ -40,7 +40,14 @@
                   <div class="item"><span>Nickname:</span> {{rootApp.display_nickname(rootApp.wallet_address)}}</div>
                   <div class="item"><span>Sectors Scanned:</span> {{values.sectors}}</div>
                   <div class="item"><span>Planets Discovered:</span> {{values.total}}</div>
-
+                  
+                  <div *ngIf="(rootApp.settings_laoded[ rootApp.wallet_address + '_credit']) > 0">
+                  <div class="item"><span>Error Locked Credits:</span> {{rootApp.onChain_value(rootApp.settings_laoded[ rootApp.wallet_address + '_credit'])}} DERO</div>
+                  <ion-button fill="solid" size="small" color="warning" expand="block" (click)="rootApp.withdraw()">
+                    <ion-icon slot="start" name="unlock"></ion-icon> Withdraw
+                  </ion-button>
+                  </div>
+                  
                 </ion-card-content>
                 <ion-card-content *ngIf="!rootApp.wallet_address">
                   <b>Your Profile</b>
@@ -51,6 +58,8 @@
                     <ion-icon slot="start" name="person"></ion-icon> Authorize
                   </ion-button>
                 </ion-card-content>
+                
+                
               </ion-card>
               
             </ion-col>
@@ -81,7 +90,7 @@
                     <ion-grid>
                       <ion-row>
                         <ion-col>
-                          <b>Blockchain State</b>
+                          <b>Blockchain State <ion-icon name="bug" (click)="bug=!bug"></ion-icon></b> 
                         </ion-col>
                       </ion-row>
                     </ion-grid>
@@ -89,6 +98,10 @@
                       {{rootApp.daemon_response.result.stableheight||0}}</div>
                     <div class="item"><span>Avg. Block Time:</span>
                       {{rootApp.daemon_response.result.averageblocktime50||0}}s</div>
+                      
+                      
+                      <pre *ngIf="bug">{{ rootApp.settings_laoded | json }}</pre>
+                      
                   </div>
                   <!--
                   {{ rootApp.settings_laoded | json }}

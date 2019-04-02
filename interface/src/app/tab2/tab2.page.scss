@@ -1,10 +1,22 @@
 .galaxy{
+  background-image: url('./../../assets/starts-bg.png');
+  background-color: black;
+  background-size: var(--size);
+  --x: 50%;
+  --y: 50%;
+  --size: 20%;
+  background-position: var(--x) var(--y);
+  transition: background-color 1.4s ease, background-size 0.8s ease;
+}
+.starts{
+  /* starts-bg.png */
+  
   
   background-image: url('./../../assets/stars.png');
-  background-color: black;
+  background-color: transparent;
 	background-position: center center;
 	background-size: cover;
-	transition: background-color 0.4s ease;
+	transition: background-color 1.4s ease;
   
   ion-col{
     height: calc(11.0vh - 12.966px);

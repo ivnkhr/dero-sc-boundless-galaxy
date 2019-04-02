@@ -65,7 +65,7 @@ export class AppComponent {
     variable_dev_fee:         '5',
     variable_redeem_offset:   '100',
     variable_redeem_precent:  '5',
-    variable_enchant_precent: '25',
+    variable_enchant_precent: '35',
 
     stats_excelent_cards:     '0',
     stats_planet_counter:     '0',
@@ -78,7 +78,7 @@ export class AppComponent {
   public latest_tx_count = 0;
   public latest_txs = [];
 
-  public contract = 'ed36e1ddafdb6102c51d849ce49161bb36415774c36ca87b75345a8df88588af';
+  public contract = 'f19db61500737cfefa3b41eeb2f39393ea7a523078ade1d41b4683f0be74cf9d';
   public contract_response = null;
   public variables = [''];
   public active_method = null;
@@ -130,12 +130,12 @@ export class AppComponent {
       inputs: [
         {
           name: 'variable',
-          type: 'string',
+          type: 'text',
           placeholder: 'Enter variable name (without variable_)...'
         },
         {
           name: 'new_value',
-          type: 'string',
+          type: 'text',
           placeholder: 'Enter new value...'
         }
       ],
@@ -177,9 +177,19 @@ export class AppComponent {
       position_y: planet.y,
       position_z: planet.z,
     }, 0);
-    console.log(planet, this.daemon_response.result.stableheight, this.settings_laoded.variable_redeem_offset);
-    // planet.next_redeem_at = parseInt(this.daemon_response.result.stableheight, 10)
-    // + parseInt(this.settings_laoded.variable_redeem_offset, 10);
+
+    // console.log(planet, this.daemon_response.result.stableheight, this.settings_laoded.variable_redeem_offset);
+    try {
+      planet.next_redeem_at = parseInt(this.daemon_response.result.stableheight, 10)
+      + parseInt(this.settings_laoded.variable_redeem_offset, 10);
+    } catch (err) {
+      // err
+    }
+  }
+
+  async withdraw() {
+    await this.execute_command('ErrorValueWithdraw', {
+    }, 0);
   }
 
   async flame(planet1, planet2) {
@@ -681,7 +691,7 @@ export class AppComponent {
         parseInt(setoff.RAREClouds, 10) +
         parseInt(setoff.RARELightColor, 10); // +
 
-        setoff.vRarityAbsolute = Math.round(rarity_rate_abs / 9);
+        setoff.vRarityAbsolute = Math.ceil(rarity_rate_abs / 9);
         if ( setoff.vRarityAbsolute >= 100 ) {
           setoff.vRarityAbsolute = 100;
         }
@@ -767,6 +777,53 @@ export class AppComponent {
     return o;
   }
 
+  public async perform_call(data, httpOptions) {
+
+    {
+
+      const loading = await this.presentLoadingWithOptions('Interacting With Wallet Endpoint');
+      this.http.post(this.wallet + '/json_rpc', data, httpOptions)
+      .toPromise()
+      .then(responseAfterSuccess => {
+        loading.dismiss();
+
+        // console.log(responseAfterSuccess);
+        if ( responseAfterSuccess['error'] ) {
+          this.toast( responseAfterSuccess['error']['message'], 'warning', null, null );
+        } else {
+          this.wallet_execution_response = responseAfterSuccess;
+          this.latest_txs.push({request: JSON.parse(data), response: responseAfterSuccess});
+          this.latest_tx_count++;
+          // console.log(this.wallet_execution_response.result);
+          this.toast(
+            'Transaction sent to Blockchain. Once its mined press (Refresh Blockchain State) to see results.\n' +
+            'You can also check transaction status in (Latest TX`s) section.\n' +
+            this.wallet_execution_response.result.tx_hash_list[0], 'success', null, 6000);
+        }
+      })
+      .catch(responseAfterError => {
+        loading.dismiss();
+
+        this.toast(
+          'Cannot reach wallet endpoint.' +
+          'Make sure youre running your wallet with --rpc-server and settings are correct.' +
+          'You can manualy execute command using snippet below:', 'danger', null, null);
+        this.wallet_status = 0;
+        this.wallet_execution_response = null;
+        // console.log('curl -X POST ' + (this.wallet) + '/json_rpc -H "Content-Type: application/json" -d ' + data);
+
+        this.toast(
+          'curl -X POST ' + (this.wallet) + '/json_rpc -H "Content-Type: application/json" -d ' + JSON.stringify((data)),
+          'dark',
+          'bottom',
+          15000 );
+
+      });
+
+    }
+
+  }
+
   public async execute_command(method, params, value) {
     this.wallet_execution_response = null;
     // console.log(this.active_method);
@@ -823,45 +880,9 @@ export class AppComponent {
         }, {
           text: 'Confirm',
           handler: async () => {
-            // console.log('Confirm Ok');
-
-            const loading = await this.presentLoadingWithOptions('Interacting With Wallet Endpoint');
-            this.http.post(this.wallet + '/json_rpc', data, httpOptions)
-            .toPromise()
-            .then(responseAfterSuccess => {
-              loading.dismiss();
-
-              console.log(responseAfterSuccess);
-              if ( responseAfterSuccess['error'] ) {
-                this.toast( responseAfterSuccess['error']['message'], 'warning', null, null );
-              } else {
-                this.wallet_execution_response = responseAfterSuccess;
-                this.latest_txs.push({request: JSON.parse(data), response: responseAfterSuccess});
-                this.latest_tx_count++;
-                this.toast(
-                  'Transaction sent to Blockchain. Once its mined press (Refresh Blockchain State) to see results.' +
-                  'You can also check transaction status in (Latest TX`s) section', 'success', null, 6000);
-              }
-            })
-            .catch(responseAfterError => {
-              loading.dismiss();
-
-              this.toast(
-                'Cannot reach wallet endpoint.' +
-                'Make sure youre running your wallet with --rpc-server and settings are correct.' +
-                'You can manualy execute command using snippet below:', 'danger', null, null);
-              this.wallet_status = 0;
-              this.wallet_execution_response = null;
-              // console.log('curl -X POST ' + (this.wallet) + '/json_rpc -H "Content-Type: application/json" -d ' + data);
-
-              this.toast(
-                'curl -X POST ' + (this.wallet) + '/json_rpc -H "Content-Type: application/json" -d ' + JSON.stringify((data)),
-                'dark',
-                'bottom',
-                15000 );
-
-            });
-
+            this.perform_call(data, httpOptions);
+            // this.perform_call(data, httpOptions);
+            // this.perform_call(data, httpOptions);
           }
         }
       ]
@@ -943,7 +964,9 @@ export class AppComponent {
       'variable_enchant_precent',
 
       'balance_dev_fee',
-      'balance_shared_pool'
+      'balance_shared_pool',
+
+      this.wallet_address + '_credit'
     ]);
     if ( res != null ) {
       // Blockchain got an actual data

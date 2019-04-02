@@ -17,11 +17,10 @@
 
   <div class="galaxy">
     
-    <ion-grid>
+    <ion-grid class="starts">
       <ion-row *ngFor="let row of items">
         <ion-col *ngFor="let col of items">
           <div class="sector" routerLink="/app/galaxy/view/{{col+1-5+(y*8)}}/{{row+1-5+(x*8)}}" class="{{ (dataArray[row*9+col]!==null && dataArray[row*9+col]>=0)?'explored':'nonExplored' }}">
-            
             
             Sector<br/>
             [{{col+1-5+(y*8)}}:{{row+1-5+(x*8)}}]<br/>
