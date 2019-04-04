@@ -105,6 +105,7 @@ Function Info(info_message String) Uint64
 	70  PRINTF "  + TXID: %s" txid
 	80  PRINTF "  +-------------------+  " 
 	
+	
 	999 RETURN 0
 End Function 
 
@@ -158,6 +159,7 @@ Function ErrorValueWithdraw() Uint64
 	04 SEND_DERO_TO_ADDRESS(signer, LOAD(signer + "_credit"))
 	05 STORE(signer + "_credit", 0)
 
+
 	999 RETURN Info("Error Funds Successfully Withdrawn Back")
 End Function
 
@@ -177,7 +179,6 @@ Function isConcurrentExecution() Uint64
 	08 Info("isConcurrentExecution diff = " + diff)
 	09 RETURN diff
 
-	
 End Function
 
 
@@ -189,12 +190,12 @@ Function Initialize() Uint64
 	10 STORE("stats_excelent_cards", 0)
 	11 STORE("stats_planet_counter", 0)
 	
-	12 STORE("variable_colonize_fee", 				2 * 1000000000000) 		// 1 DERO
-	13 STORE("variable_sector_moto_fee", 			1 * 500000000000)		// 1 DERO
+	12 STORE("variable_colonize_fee", 				1 * 1000000000000) 		// 1 DERO
+	13 STORE("variable_sector_moto_fee", 			1 * 500000000000)		// 0.5 DERO
 	14 STORE("variable_dev_fee",							5)						// 5% goes to the dev fee
-	15 STORE("variable_redeem_offset",				100) 					// number of blocks between redeems
-	16 STORE("variable_redeem_precent",				5)						// formula defined in (CalculateReward)
-	17 STORE("variable_enchant_precent",			35)						// percentage of 2nd card stats to be converted into 1st card during echantment process
+	15 STORE("variable_redeem_offset",				50) 					// number of blocks between redeems
+	16 STORE("variable_redeem_precent",				25)						// formula defined in (CalculateReward)
+	17 STORE("variable_enchant_precent",			40)						// percentage of 2nd card stats to be converted into 1st card during echantment process
 	
 	18 STORE("balance_dev_fee", 0)
 	19 STORE("balance_shared_pool", 0)
@@ -261,7 +262,7 @@ Function CalculateCardPower(planet_position String) Uint64
 	90 LET sum = sum + LOAD(planet_position + "/RARELightColor")
 	
 	
-	999 RETURN sum / 9
+	999 RETURN (sum / 9)
 End Function
 
 
@@ -418,7 +419,7 @@ Function PlanetAcquire(position_x Uint64, position_y Uint64, position_z Uint64, 
 	96  STORE(planet_position + "/AvgTemp", 			RANDOM(200))
 	
 	// Editable Data
-	97  STORE(planet_position + "/OnSale", 				0)
+	97  STORE(planet_position + "/OnSale", 				0 )
 	98  STORE(planet_position + "/Name", 					"")
 	99  STORE(planet_position + "/Moto", 					"")
 	100 STORE(planet_position + "/Owner", 				user)
@@ -671,8 +672,9 @@ End Function
 // Acquire planet wich is set on sale
 Function PlanetBuyIn(position_x Uint64, position_y Uint64, position_z Uint64, value Uint64) Uint64
 
-	01 DIM planet_position as String
-	02 LET planet_position = "" + position_x + ":" + position_y + ":" + position_z
+	01 DIM planet_position, new_owner as String
+	02 DIM new_owner_stack_index as Uint64
+	03 LET planet_position = "" + position_x + ":" + position_y + ":" + position_z
 
 	10 IF EXISTS(planet_position + "/Owner") == 1 THEN GOTO 20
 	11 RETURN ErrorValue("Unpermited Action. Planet does not exist.", value)
@@ -695,19 +697,20 @@ Function PlanetBuyIn(position_x Uint64, position_y Uint64, position_z Uint64, va
 	// Add into new owner stack list
 	60 LET new_owner = SIGNER()
 	61 LET new_owner_stack_index = 0
-	62 IF EXISTS(new_owner + "_index") == 1 THEN GOTO 54
+	62 IF EXISTS(new_owner + "_index") == 1 THEN GOTO 64
 	63 STORE(new_owner + "_index", new_owner_stack_index)
 	64 LET new_owner_stack_index = LOAD(new_owner + "_index")
 	
 	// Setting new owner for planet
  	70 STORE(new_owner + "_index_" + new_owner_stack_index, planet_position)
-	71 STORE(new_owner + "_index", stack_index + 1)
+	71 STORE(new_owner + "_index", new_owner_stack_index + 1)
 	
-	100 STORE(planet_position + "/Owner", new_owner)
-	101 STORE(planet_position + "/OnSale", 0)
+	100 SEND_DERO_TO_ADDRESS(LOAD(planet_position + "/Owner"), value - 1) //underwrap attack fix
+	101 STORE(planet_position + "/Owner", new_owner)
+	102 STORE(planet_position + "/OnSale", 0)
 
 
-	999 RETURN Info("(PlanetSellOut) Successfully Executed")
+	999 RETURN Info("(PlanetBuyIn) Successfully Executed")
 End Function
 
 
@@ -744,7 +747,15 @@ Function PlanetRedeem(position_x Uint64, position_y Uint64, position_z Uint64) U
 	
 	60 STORE(planet_position + "/next_redeem_at", BLOCK_HEIGHT() + LOAD("variable_redeem_offset"))
 
-	70 SEND_DERO_TO_ADDRESS(SIGNER(), CalculateReward())
+	61 DIM reward, pool as Uint64
+	62 LET reward = CalculateReward() - 1
+	63 LET pool = LOAD("balance_shared_pool")
+	64 IF reward < pool THEN GOTO 70
+	65 RETURN Error("Unpermited Action. Reward is larger then DERO in pool.")
+	66 GOTO 999 // Prevent Execution on same block hack
+	
+	70 SEND_DERO_TO_ADDRESS(SIGNER(), reward)
+	80 STORE("balance_shared_pool", pool - reward)
 	
 	
 	999 RETURN Info("(PlanetRedeem) Successfully Executed")

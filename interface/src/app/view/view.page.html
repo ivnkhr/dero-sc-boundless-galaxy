@@ -197,7 +197,7 @@
         <br/>
       </div>
       
-      <ion-button fill="solid" size="large" color="warning" *ngIf="planet_focus && !planet_focus.Owned && planet_focus.OnSale" expand="block" (click)="this.rootApp.rebuy(planet_focus)">
+      <ion-button fill="solid" size="large" color="warning" *ngIf="planet_focus && !planet_focus.Owned && planet_focus.OnSale" expand="block" (click)="this.rootApp.putOnBuy(planet_focus)">
         <ion-icon slot="start" name="cart"></ion-icon> Buy Card ({{this.rootApp.onChain_value(planet_focus.OnSale)}} DERO)
       </ion-button>
       

@@ -129,6 +129,7 @@ export class TabposessionsPage implements OnInit, AfterViewInit {
             keys1.push(this.wallet + '_index_' + i);
           }
           const res1 = await this.rootApp.fetch_contract(keys1, false);
+          const wallet = this.wallet;
           if ( res1 != null ) {
             // console.log( res1.txs[0].sc_keys );
             for (let j = 0; j < i; j++) {
@@ -144,6 +145,10 @@ export class TabposessionsPage implements OnInit, AfterViewInit {
                 this.results.forEach(function(subject) {
                   console.log(subject, item);
                   if ( subject.txid === item.txid ) {
+                    prevent = 1;
+                  }
+                  // console.log(subject.Owner, wallet);
+                  if ( item.Owner !== wallet ) {
                     prevent = 1;
                   }
                 });

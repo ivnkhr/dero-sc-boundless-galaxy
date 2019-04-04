@@ -60,12 +60,12 @@ export class AppComponent {
   public wallet_address = '';
 
   public settings_laoded: any = <any>{
-    variable_colonize_fee:    '2000000000000',
+    variable_colonize_fee:    '1000000000000',
     variable_sector_moto_fee: '500000000000', // Default value, may vary
     variable_dev_fee:         '5',
-    variable_redeem_offset:   '100',
-    variable_redeem_precent:  '5',
-    variable_enchant_precent: '35',
+    variable_redeem_offset:   '50',
+    variable_redeem_precent:  '25',
+    variable_enchant_precent: '40',
 
     stats_excelent_cards:     '0',
     stats_planet_counter:     '0',
@@ -78,7 +78,7 @@ export class AppComponent {
   public latest_tx_count = 0;
   public latest_txs = [];
 
-  public contract = 'f19db61500737cfefa3b41eeb2f39393ea7a523078ade1d41b4683f0be74cf9d';
+  public contract = '7b742e23a8a5c125f7364f583ae9478ddbd9cb9e18526e5c8694e4c99ac1f90f';
   public contract_response = null;
   public variables = [''];
   public active_method = null;
@@ -299,6 +299,14 @@ export class AppComponent {
     });
 
     await alert.present();
+  }
+
+  async putOnBuy(planet) {
+    this.execute_command('PlanetBuyIn', {
+      position_x: planet.x,
+      position_y: planet.y,
+      position_z: planet.z,
+    }, planet.OnSale);
   }
 
   async setNewName() {

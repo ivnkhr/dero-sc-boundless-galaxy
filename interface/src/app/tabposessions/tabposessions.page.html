@@ -212,7 +212,7 @@
                       
                       <div *ngIf="!planet_focus.Owned">
                         
-                        <ion-button *ngIf="planet_focus.OnSale" fill="solid" color="warning" size="small" expand="block" (click)="null">
+                        <ion-button *ngIf="planet_focus.OnSale" fill="solid" color="warning" size="small" expand="block" (click)="this.rootApp.putOnBuy(planet_focus)">
                           <ion-icon slot="start" name="cart"></ion-icon> Buy Card ! {{this.rootApp.onChain_value(planet_focus.OnSale)}} DERO
                         </ion-button>
                         
