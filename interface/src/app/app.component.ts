@@ -78,7 +78,7 @@ export class AppComponent {
   public latest_tx_count = 0;
   public latest_txs = [];
 
-  public contract = '7b742e23a8a5c125f7364f583ae9478ddbd9cb9e18526e5c8694e4c99ac1f90f';
+  public contract = '6e6d1255e33317eb7a592a5a9b51978e4147fae0154b806df8a8731aacae6ad4';
   public contract_response = null;
   public variables = [''];
   public active_method = null;
